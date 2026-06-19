@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Digital — Admin Panel</title>
+<style>
+/* ============ THEME TOKENS ============ */
+:root {
+  --bg: #0f0d1a;
+  --bg2: #181528;
+  --surface: #1e1b30;
+  --surface2: #252240;
+  --border: #2e2a45;
+  --ink: #f0eaf8;
+  --ink2: #b0a8c8;
+  --ink3: #6b6288;
+  --teal: #28e0c5;
+  --teal-d: #11b89f;
+  --teal-bg: #0d3330;
+  --blue: #1559ff;
+  --blue-bg: #0e1f4a;
+  --gold: #d8a43a;
+  --gold-bg: #2e2310;
+  --danger: #e5484d;
+  --danger-bg: #2e1012;
+  --success: #12a454;
+  --success-bg: #0c2318;
+  --navy: #0a0817;
+  --sidebar-w: 250px;
+  --header-h: 64px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 4px 24px -8px rgba(0,0,0,0.4);
+  --shadow-lg: 0 20px 60px -20px rgba(0,0,0,0.6);
+  --transition: 0.2s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ======== LAYOUT ======== */
+.layout { display: flex; min-height: 100vh; }
+
+/* ======== SIDEBAR ======== */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform var(--transition);
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.sidebar-brand h1 {
+  font-size: 16px; font-weight: 900;
+  letter-spacing: 0.08em; color: var(--teal);
+}
+.sidebar-brand p { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.admin-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(229,72,77,0.15); color: var(--danger);
+  border: 1px solid rgba(229,72,77,0.3);
+  border-radius: 6px; padding: 3px 8px; font-size: 10px;
+  font-weight: 800; letter-spacing: .06em; margin-top: 6px;
+}
+
+.sidebar-nav { flex: 1; padding: 12px 0; }
+.nav-section-label {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .12em;
+  color: rgba(255,255,255,0.25); padding: 12px 18px 4px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 18px; color: rgba(255,255,255,0.5);
+  font-size: 13.5px; font-weight: 600;
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left; position: relative;
+  transition: all var(--transition);
+}
+.nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+.nav-item.active { color: #fff; background: rgba(40,224,197,0.12); }
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+  width: 3px; background: var(--teal); border-radius: 0 3px 3px 0;
+}
+.nav-item svg { width: 17px; height: 17px; flex: 0 0 auto; }
+.nav-badge {
+  margin-left: auto; background: var(--danger); color: #fff;
+  font-size: 9px; font-weight: 800; padding: 2px 6px;
+  border-radius: 20px; min-width: 18px; text-align: center;
+}
+.nav-badge.gold { background: var(--gold); color: #1a1000; }
+
+.sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.admin-user { display: flex; align-items: center; gap: 10px; }
+.admin-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--danger), #ff6b35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff; flex: 0 0 auto;
+}
+.admin-user-info p { font-size: 12px; font-weight: 700; color: #fff; }
+.admin-user-info span { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+/* ======== MAIN ======== */
+.main { flex: 1; margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ======== TOPBAR ======== */
+.topbar {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 14px;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left { flex: 1; }
+.topbar-left h2 { font-size: 16px; font-weight: 800; }
+.topbar-left p { font-size: 12px; color: var(--ink2); margin-top: 1px; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.topbar-btn {
+  width: 36px; height: 36px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface2);
+  color: var(--ink2); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: all var(--transition);
+  position: relative;
+}
+.topbar-btn:hover { border-color: var(--teal-d); color: var(--teal-d); }
+.topbar-btn svg { width: 16px; height: 16px; }
+.notif-dot {
+  width: 7px; height: 7px; background: var(--danger); border-radius: 50%;
+  position: absolute; top: 5px; right: 5px; border: 2px solid var(--surface);
+}
+.menu-toggle {
+  display: none; width: 36px; height: 36px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface2);
+  color: var(--ink); align-items: center; justify-content: center; cursor: pointer;
+}
+.menu-toggle svg { width: 18px; height: 18px; }
+
+/* ======== CONTENT ======== */
+.content { flex: 1; padding: 24px; }
+.page-view { display: none; }
+.page-view.active { display: block; }
+
+/* ======== CARDS ======== */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 0; margin-bottom: 14px;
+}
+.card-title { font-size: 14px; font-weight: 800; }
+
+/* ======== STAT GRID ======== */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+
+.stat-card {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.stat-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.stat-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-icon svg { width: 18px; height: 18px; }
+.stat-icon.teal { background: var(--teal-bg); color: var(--teal-d); }
+.stat-icon.blue { background: var(--blue-bg); color: var(--blue); }
+.stat-icon.gold { background: var(--gold-bg); color: var(--gold); }
+.stat-icon.red { background: var(--danger-bg); color: var(--danger); }
+.stat-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+.stat-badge.up { background: var(--success-bg); color: var(--success); }
+.stat-badge.warn { background: var(--gold-bg); color: var(--gold); }
+.stat-val { font-size: 26px; font-weight: 900; letter-spacing: -0.02em; }
+.stat-label { font-size: 11px; font-weight: 700; color: var(--ink2); text-transform: uppercase; letter-spacing: .06em; }
+
+/* ======== SECTION TITLE ======== */
+.section-title {
+  font-size: 13px; font-weight: 800; color: var(--ink2);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px;
+}
+
+/* ======== TABLE ======== */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+thead tr { border-bottom: 1.5px solid var(--border); }
+th {
+  padding: 10px 14px; font-size: 11px; font-weight: 700;
+  color: var(--ink3); text-transform: uppercase; letter-spacing: .06em;
+  text-align: left; white-space: nowrap;
+}
+td { padding: 13px 14px; font-size: 13px; border-bottom: 1px solid rgba(46,42,69,0.5); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+.td-name { font-weight: 700; }
+.td-sub { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+
+/* ======== BADGES ======== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 700;
+}
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-warning { background: var(--gold-bg); color: var(--gold); }
+.badge-info { background: var(--blue-bg); color: var(--blue); }
+.badge-neutral { background: rgba(255,255,255,0.07); color: var(--ink2); }
+
+/* ======== ACTION BUTTONS ======== */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 36px; padding: 0 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: 1.5px solid transparent; transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn svg { width: 15px; height: 15px; }
+.btn-primary { background: var(--teal-d); color: #fff; border-color: var(--teal-d); }
+.btn-primary:hover { background: var(--teal); border-color: var(--teal); }
+.btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-danger:hover { background: #ff3a40; }
+.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-success:hover { opacity: 0.85; }
+.btn-outline { background: transparent; color: var(--ink2); border-color: var(--border); }
+.btn-outline:hover { border-color: var(--teal-d); color: var(--teal-d); }
+.btn-gold { background: var(--gold); color: #1a1000; border-color: var(--gold); }
+.btn-sm { height: 30px; padding: 0 10px; font-size: 12px; }
+.btn-block { width: 100%; justify-content: center; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ======== ACTION ROW ======== */
+.action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ======== USER AVATAR ======== */
+.u-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal-d), var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff; flex: 0 0 auto;
+}
+.u-avatar.blocked { background: linear-gradient(135deg, var(--danger), #ff6b35); }
+.user-cell { display: flex; align-items: center; gap: 10px; }
+
+/* ======== FORMS ======== */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--ink2); margin-bottom: 6px; }
+.input-wrap { position: relative; }
+.field-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--ink3); pointer-events: none;
+}
+.field-icon svg { width: 15px; height: 15px; }
+.form-control {
+  width: 100%; height: 42px; padding: 0 14px 0 38px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--ink); font-size: 13.5px;
+  font-family: inherit; transition: border-color var(--transition);
+}
+.form-control:focus { outline: none; border-color: var(--teal-d); }
+.form-control.no-icon { padding-left: 14px; }
+textarea.form-control { height: 80px; padding-top: 10px; resize: vertical; }
+select.form-control { cursor: pointer; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-hint { font-size: 11px; color: var(--ink3); margin-top: 4px; }
+
+/* ======== FILTER BAR ======== */
+.filter-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 20px 12px; flex-wrap: wrap;
+}
+.search-wrap { position: relative; flex: 1; min-width: 180px; }
+.search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--ink3); }
+.search-input {
+  width: 100%; height: 38px; padding: 0 14px 0 36px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--ink); font-size: 13px;
+  font-family: inherit;
+}
+.search-input:focus { outline: none; border-color: var(--teal-d); }
+.filter-select {
+  height: 38px; padding: 0 10px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface2);
+  color: var(--ink); font-size: 12.5px; font-weight: 600; cursor: pointer;
+  font-family: inherit;
+}
+.filter-select:focus { outline: none; border-color: var(--teal-d); }
+
+/* ======== MODALS ======== */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(5,3,15,0.8);
+  z-index: 200; display: none;
+  align-items: center; justify-content: center;
+  padding: 20px; backdrop-filter: blur(4px);
+}
+.overlay.show { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 26px; position: relative;
+  box-shadow: var(--shadow-lg);
+}
+.modal-sm { max-width: 400px; }
+.modal-lg { max-width: 680px; }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 30px; height: 30px; border-radius: 8px;
+  border: 1.5px solid var(--border); background: var(--surface2);
+  color: var(--ink2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--transition);
+}
+.modal-close:hover { border-color: var(--danger); color: var(--danger); }
+.modal-close svg { width: 14px; height: 14px; }
+.modal-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.modal-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+}
+.modal-icon.teal { background: var(--teal-bg); color: var(--teal-d); }
+.modal-icon.red { background: var(--danger-bg); color: var(--danger); }
+.modal-icon.gold { background: var(--gold-bg); color: var(--gold); }
+.modal-icon.blue { background: var(--blue-bg); color: var(--blue); }
+.modal-icon.green { background: var(--success-bg); color: var(--success); }
+.modal-icon svg { width: 20px; height: 20px; }
+.modal-title { font-size: 16px; font-weight: 800; }
+.modal-sub { font-size: 12px; color: var(--ink2); margin-top: 2px; }
+.modal-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+/* ======== DETAIL ROWS ======== */
+.detail-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(46,42,69,0.5);
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-size: 12.5px; color: var(--ink2); }
+.detail-val { font-size: 13px; font-weight: 700; text-align: right; max-width: 240px; word-break: break-word; }
+.detail-box {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px;
+}
+
+/* ======== EMPTY STATE ======== */
+.empty-state {
+  text-align: center; padding: 48px 20px;
+  color: var(--ink3);
+}
+.empty-state svg { width: 36px; height: 36px; margin-bottom: 12px; opacity: 0.4; display: block; margin-left: auto; margin-right: auto; }
+.empty-state p { font-size: 14px; font-weight: 600; }
+
+/* ======== ALERT ======== */
+.alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; margin-bottom: 14px;
+}
+.alert svg { width: 15px; height: 15px; flex: 0 0 auto; margin-top: 1px; }
+.alert-danger { background: var(--danger-bg); color: var(--danger); }
+.alert-success { background: var(--success-bg); color: var(--success); }
+.alert-warning { background: var(--gold-bg); color: var(--gold); }
+.alert-info { background: var(--blue-bg); color: #5b8cff; }
+
+/* ======== SPINNER ======== */
+.spinner { width: 14px; height: 14px; border: 2.5px solid rgba(255,255,255,0.2); border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ======== DEPOSIT SETTINGS ======== */
+.dep-section { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px; }
+.dep-section-title { font-size: 11px; font-weight: 800; color: var(--ink3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+
+/* ======== CRYPTO ADDR CARD ======== */
+.crypto-addr-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid rgba(46,42,69,0.5);
+  gap: 10px;
+}
+.crypto-addr-row:last-child { border-bottom: none; }
+.crypto-label { font-size: 12px; font-weight: 700; color: var(--ink2); min-width: 50px; }
+.crypto-input {
+  flex: 1; height: 34px; padding: 0 10px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--ink); font-size: 12px;
+  font-family: inherit;
+}
+.crypto-input:focus { outline: none; border-color: var(--teal-d); }
+
+/* ======== SCROLLBAR ======== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ======== SVG ICONS ======== */
+svg.icon { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+/* ======== BACKDROP ======== */
+#sidebarBackdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 99; }
+
+/* ======== TOAST ======== */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1e1b30; border: 1px solid var(--border);
+  color: var(--ink); padding: 12px 20px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; z-index: 9999;
+  transition: transform 0.3s ease; white-space: nowrap;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ======== PENDING HIGHLIGHT ======== */
+tr.pending-row td { background: rgba(216,164,58,0.04); }
+
+/* ======== LOADING OVERLAY ======== */
+.page-loader {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 9999; gap: 14px;
+}
+.page-loader h2 { font-size: 20px; font-weight: 900; color: var(--teal); }
+.page-loader p { font-size: 13px; color: var(--ink2); }
+.loader-spinner { width: 40px; height: 40px; border: 3px solid rgba(40,224,197,0.2); border-top-color: var(--teal-d); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+/* ======== USER INFO CARD ======== */
+.user-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.info-field { padding: 10px 14px; border-bottom: 1px solid rgba(46,42,69,0.5); }
+.info-field:nth-child(odd) { border-right: 1px solid rgba(46,42,69,0.5); }
+.info-field label { font-size: 10.5px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 3px; }
+.info-field p { font-size: 13px; font-weight: 700; }
+
+/* ======== FUND MODAL ======== */
+.fund-type-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.fund-type-btn {
+  flex: 1; height: 44px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface2);
+  color: var(--ink2); font-size: 13px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 7px; transition: all var(--transition);
+}
+.fund-type-btn.credit.active { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+.fund-type-btn.debit.active { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+.fund-type-btn svg { width: 15px; height: 15px; }
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 1100px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  :root { --sidebar-w: 250px; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+  #sidebarBackdrop.show { display: block; }
+  .main { margin-left: 0; }
+  .menu-toggle { display: flex; }
+  .content { padding: 16px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .topbar { padding: 0 16px; }
+  .filter-bar { padding: 12px 14px; }
+  .action-btns { flex-direction: column; }
+  .action-btns .btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-val { font-size: 20px; }
+  .modal { padding: 18px; }
+  .fund-type-row { flex-direction: column; }
+  .user-info-grid { grid-template-columns: 1fr; }
+  .info-field:nth-child(odd) { border-right: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG ICONS -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="ic-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7"/><path d="M9 22V12h6v10"/><path d="M5 10v11h14V10"/></symbol>
+    <symbol id="ic-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="ic-txn" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+    <symbol id="ic-deposit" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="m6 14 6 6 6-6"/><rect x="2" y="2" width="20" height="4" rx="1"/></symbol>
+    <symbol id="ic-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="ic-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ic-check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="ic-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></symbol>
+    <symbol id="ic-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></symbol>
+    <symbol id="ic-user-check" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></symbol>
+    <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="ic-dollar" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="ic-minus" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="ic-arrow-down" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></symbol>
+    <symbol id="ic-arrow-up" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>
+    <symbol id="ic-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.23-3.48"/></symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="ic-bank" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7"/><path d="M5 10v9"/><path d="M19 10v9"/><path d="M9 10v9"/><path d="M15 10v9"/><path d="M3 21h18"/></symbol>
+    <symbol id="ic-wifi" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></symbol>
+    <symbol id="ic-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="ic-history" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="ic-trending-up" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+  </defs>
+</svg>
+
+<!-- Page Loader -->
+<div class="page-loader" id="pageLoader">
+  <div class="loader-spinner"></div>
+  <h2>QUANTUM DIGITAL</h2>
+  <p>Loading admin panel…</p>
+</div>
+
+<!-- Sidebar Backdrop -->
+<div id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<!-- Layout -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1>QUANTUM DIGITAL</h1>
+      <p>Admin Control Panel</p>
+      <div class="admin-badge">
+        <svg class="icon"><use href="#ic-shield"/></svg> ADMIN
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <p class="nav-section-label">Overview</p>
+      <button class="nav-item active" onclick="navigate('home')">
+        <svg class="icon"><use href="#ic-home"/></svg> Dashboard
+      </button>
+
+      <p class="nav-section-label">Management</p>
+      <button class="nav-item" onclick="navigate('users')">
+        <svg class="icon"><use href="#ic-users"/></svg> All Users
+      </button>
+      <button class="nav-item" onclick="navigate('fund')">
+        <svg class="icon"><use href="#ic-dollar"/></svg> Fund User
+      </button>
+      <button class="nav-item" onclick="navigate('transfers')">
+        <svg class="icon"><use href="#ic-send"/></svg> Transfers
+        <span class="nav-badge" id="pendingTransfersBadge">0</span>
+      </button>
+      <button class="nav-item" onclick="navigate('deposits')">
+        <svg class="icon"><use href="#ic-deposit"/></svg> Deposits
+        <span class="nav-badge gold" id="pendingDepositsBadge">0</span>
+      </button>
+
+      <p class="nav-section-label">Settings</p>
+      <button class="nav-item" onclick="navigate('deposit-settings')">
+        <svg class="icon"><use href="#ic-bank"/></svg> Deposit Settings
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="admin-user">
+        <div class="admin-avatar">AD</div>
+        <div class="admin-user-info">
+          <p id="adminName">Admin</p>
+          <span id="adminEmail">—</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <svg class="icon"><use href="#ic-menu"/></svg>
+      </button>
+      <div class="topbar-left">
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageDate">—</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" onclick="refreshAll()" title="Refresh">
+          <svg class="icon"><use href="#ic-refresh"/></svg>
+        </button>
+        <button class="topbar-btn" onclick="signOut()" title="Sign Out">
+          <svg class="icon"><use href="#ic-log-out"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ===== HOME PAGE ===== -->
+      <div class="page-view active" id="page-home">
+        <div class="stat-grid" id="homeStats">
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon blue"><svg class="icon"><use href="#ic-users"/></svg></div>
+              <span class="stat-badge up" id="statActiveUsers">—</span>
+            </div>
+            <div class="stat-val" id="statTotalUsers">—</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon gold"><svg class="icon"><use href="#ic-history"/></svg></div>
+              <span class="stat-badge warn" id="statPendingCount">—</span>
+            </div>
+            <div class="stat-val" id="statPendingTransfers">—</div>
+            <div class="stat-label">Pending Transfers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon teal"><svg class="icon"><use href="#ic-deposit"/></svg></div>
+              <span class="stat-badge warn" id="statPendingDepositsCount">—</span>
+            </div>
+            <div class="stat-val" id="statPendingDeposits">—</div>
+            <div class="stat-label">Pending Deposits</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon red"><svg class="icon"><use href="#ic-ban"/></svg></div>
+            </div>
+            <div class="stat-val" id="statBlockedUsers">—</div>
+            <div class="stat-label">Blocked Accounts</div>
+          </div>
+        </div>
+
+        <!-- Recent Pending -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <p class="card-title">Pending Transfers</p>
+            <button class="btn btn-sm btn-outline" onclick="navigate('transfers')">View All</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th><th>Amount</th><th>Description</th><th>Date</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="homePendingTransfers">
+                <tr><td colspan="5"><div class="empty-state"><svg class="icon"><use href="#ic-history"/></svg><p>No pending transfers</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Pending Deposits -->
+        <div class="card">
+          <div class="card-header">
+            <p class="card-title">Pending Deposits</p>
+            <button class="btn btn-sm btn-outline" onclick="navigate('deposits')">View All</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th><th>Amount</th><th>Method</th><th>Date</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="homePendingDeposits">
+                <tr><td colspan="5"><div class="empty-state"><svg class="icon"><use href="#ic-deposit"/></svg><p>No pending deposits</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== USERS PAGE ===== -->
+      <div class="page-view" id="page-users">
+        <div class="card">
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg class="icon"><use href="#ic-search"/></svg>
+              <input type="text" class="search-input" placeholder="Search name, email, account…" oninput="filterUsers()" id="userSearch">
+            </div>
+            <select class="filter-select" onchange="filterUsers()" id="userStatusFilter">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th><th>Account No.</th><th>Balance</th><th>Currency</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <tr><td colspan="6"><div class="empty-state"><svg class="icon"><use href="#ic-users"/></svg><p>Loading users…</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== FUND USER PAGE ===== -->
+      <div class="page-view" id="page-fund">
+        <div class="card" style="max-width:560px">
+          <div class="card-header"><p class="card-title">Fund / Deduct User Balance</p></div>
+          <div style="padding:0 20px 22px">
+            <div class="form-group">
+              <label>Select User</label>
+              <div class="input-wrap">
+                <span class="field-icon"><svg class="icon"><use href="#ic-users"/></svg></span>
+                <select class="form-control" id="fundUserSelect" onchange="onFundUserChange()">
+                  <option value="">— Select a user —</option>
+                </select>
+              </div>
+            </div>
+            <div id="fundUserInfo" style="display:none;margin-bottom:16px">
+              <div class="dep-section">
+                <div class="dep-section-title">Current Balance</div>
+                <div style="font-size:28px;font-weight:900;color:var(--teal-d)" id="fundCurrentBal">—</div>
+                <div style="font-size:12px;color:var(--ink3);margin-top:4px" id="fundUserEmail">—</div>
+              </div>
+            </div>
+            <div class="fund-type-row">
+              <button class="fund-type-btn credit active" id="fundTypeCredit" onclick="setFundType('credit')">
+                <svg class="icon"><use href="#ic-plus"/></svg> Add Funds
+              </button>
+              <button class="fund-type-btn debit" id="fundTypeDebit" onclick="setFundType('debit')">
+                <svg class="icon"><use href="#ic-minus"/></svg> Deduct Funds
+              </button>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <div class="input-wrap">
+                <span class="field-icon"><svg class="icon"><use href="#ic-dollar"/></svg></span>
+                <input type="number" class="form-control" id="fundAmount" placeholder="0.00" min="0.01" step="any">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <div class="input-wrap">
+                <span class="field-icon"><svg class="icon"><use href="#ic-edit"/></svg></span>
+                <input type="text" class="form-control" id="fundDesc" placeholder="e.g. Admin credit, bonus…">
+              </div>
+            </div>
+            <div id="fundAlert"></div>
+            <button class="btn btn-primary btn-block" id="fundSubmitBtn" onclick="submitFund()">
+              <svg class="icon"><use href="#ic-check"/></svg> Apply Transaction
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TRANSFERS PAGE ===== -->
+      <div class="page-view" id="page-transfers">
+        <div class="card">
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg class="icon"><use href="#ic-search"/></svg>
+              <input type="text" class="search-input" placeholder="Search user, description…" oninput="filterTransfers()" id="transferSearch">
+            </div>
+            <select class="filter-select" onchange="filterTransfers()" id="transferStatusFilter">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>User</th><th>Amount</th><th>Description</th><th>Method</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="transfersTableBody">
+                <tr><td colspan="7"><div class="empty-state"><svg class="icon"><use href="#ic-send"/></svg><p>Loading transfers…</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DEPOSITS PAGE ===== -->
+      <div class="page-view" id="page-deposits">
+        <div class="card">
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg class="icon"><use href="#ic-search"/></svg>
+              <input type="text" class="search-input" placeholder="Search user, method…" oninput="filterDeposits()" id="depositSearch">
+            </div>
+            <select class="filter-select" onchange="filterDeposits()" id="depositStatusFilter">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>User</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="depositsTableBody">
+                <tr><td colspan="6"><div class="empty-state"><svg class="icon"><use href="#ic-deposit"/></svg><p>Loading deposits…</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DEPOSIT SETTINGS PAGE ===== -->
+      <div class="page-view" id="page-deposit-settings">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" id="depSettingsGrid">
+          <!-- Bank Settings -->
+          <div class="card" style="grid-column:1">
+            <div class="card-header"><p class="card-title">Bank Transfer Details</p></div>
+            <div style="padding:0 20px 22px">
+              <p style="font-size:12px;color:var(--ink2);margin-bottom:16px">These details appear on every user's Deposit page when they select Bank Transfer.</p>
+              <div class="form-group">
+                <label>Account Name</label>
+                <div class="input-wrap">
+                  <span class="field-icon"><svg class="icon"><use href="#ic-user-check"/></svg></span>
+                  <input type="text" class="form-control" id="ds-acctName" placeholder="e.g. Quantum Digital Ltd">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Account Number</label>
+                <div class="input-wrap">
+                  <span class="field-icon"><svg class="icon"><use href="#ic-bank"/></svg></span>
+                  <input type="text" class="form-control" id="ds-acctNum" placeholder="e.g. 1234567890">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Bank Name</label>
+                <div class="input-wrap">
+                  <span class="field-icon"><svg class="icon"><use href="#ic-bank"/></svg></span>
+                  <input type="text" class="form-control" id="ds-bankName" placeholder="e.g. Barclays Bank">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Routing / Sort Code / SWIFT</label>
+                <div class="input-wrap">
+                  <span class="field-icon"><svg class="icon"><use href="#ic-lock"/></svg></span>
+                  <input type="text" class="form-control" id="ds-routing" placeholder="e.g. 20-00-00 or BARCGB22">
+                </div>
+              </div>
+              <div id="bankSettingsAlert"></div>
+              <button class="btn btn-primary btn-block" onclick="saveBankSettings()">
+                <svg class="icon"><use href="#ic-check"/></svg> Save Bank Details
+              </button>
+            </div>
+          </div>
+
+          <!-- Crypto Settings -->
+          <div class="card" style="grid-column:2">
+            <div class="card-header"><p class="card-title">Crypto Deposit Addresses</p></div>
+            <div style="padding:0 20px 22px">
+              <p style="font-size:12px;color:var(--ink2);margin-bottom:16px">These addresses appear for the matching coin on every user's Deposit page.</p>
+              <div class="dep-section">
+                <div class="dep-section-title">Wallet Addresses</div>
+                <div class="crypto-addr-row">
+                  <span class="crypto-label">BTC</span>
+                  <input type="text" class="crypto-input" id="ds-btc" placeholder="Bitcoin address">
+                </div>
+                <div class="crypto-addr-row">
+                  <span class="crypto-label">ETH</span>
+                  <input type="text" class="crypto-input" id="ds-eth" placeholder="Ethereum address">
+                </div>
+                <div class="crypto-addr-row">
+                  <span class="crypto-label">USDT</span>
+                  <input type="text" class="crypto-input" id="ds-usdt" placeholder="USDT TRC20 address">
+                </div>
+              </div>
+              <div id="cryptoSettingsAlert"></div>
+              <button class="btn btn-primary btn-block" onclick="saveCryptoSettings()">
+                <svg class="icon"><use href="#ic-check"/></svg> Save Crypto Addresses
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ===== USER DETAIL MODAL ===== -->
+<div class="overlay" id="userModal">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeModal('userModal')"><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div class="modal-header">
+      <div class="modal-icon blue" id="userModalIcon"><svg class="icon"><use href="#ic-users"/></svg></div>
+      <div>
+        <p class="modal-title" id="userModalName">User</p>
+        <p class="modal-sub" id="userModalEmail">—</p>
+      </div>
+    </div>
+    <div id="userModalBody"></div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM MODAL ===== -->
+<div class="overlay" id="confirmModal">
+  <div class="modal modal-sm">
+    <button class="modal-close" onclick="closeModal('confirmModal')"><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div id="confirmModalBody"></div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+// ========== FIREBASE CONFIG ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyApsP3dmRBiBQ1_1Rj7HYaa-ZO9RuwbbG4",
+  authDomain: "quantum-bank-fe2d2.firebaseapp.com",
+  projectId: "quantum-bank-fe2d2",
+  storageBucket: "quantum-bank-fe2d2.firebasestorage.app",
+  messagingSenderId: "29002383788",
+  appId: "1:29002383788:web:109cff0125fba69f107a09"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+// ========== STATE ==========
+let adminUser = null;
+let allUsers = {};       // uid -> userData
+let allTransactions = {}; // uid -> {txnId: txn}
+let depositSettings = {};
+let fundType = 'credit';
+
+const currencySymbols = { 'GBP':'£','USD':'$','EUR':'€','NGN':'₦','CAD':'CA$','AUD':'A$','AED':'د.إ','ZAR':'R','INR':'₹' };
+function getCurrSym(currency) {
+  const code = (currency || '').match(/^([A-Z]{2,4})/);
+  return code ? (currencySymbols[code[1]] || code[1]+' ') : '$';
+}
+function fmtMoney(amount, currency) {
+  const sym = getCurrSym(currency);
+  return sym + parseFloat(amount||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function initials(u) {
+  return ((u.firstName||'?')[0]+(u.lastName||'?')[0]).toUpperCase();
+}
+
+// ========== AUTH ==========
+const ALLOWED_ADMIN_EMAIL = 'admin@gmail.com';
+
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'adminlogin.html'; return; }
+  // Lock this dashboard down to a single admin account.
+  if ((user.email || '').toLowerCase() !== ALLOWED_ADMIN_EMAIL) {
+    auth.signOut().then(() => window.location.href = 'adminlogin.html');
+    return;
+  }
+  adminUser = user;
+  document.getElementById('adminName').textContent = user.displayName || 'Admin';
+  document.getElementById('adminEmail').textContent = user.email || '—';
+  document.getElementById('pageDate').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  await loadAll();
+  document.getElementById('pageLoader').style.display = 'none';
+});
+
+// ========== LOAD ALL DATA ==========
+async function loadAll() {
+  // Users
+  db.ref('users').on('value', snap => {
+    allUsers = snap.exists() ? snap.val() : {};
+    refreshUI();
+    populateFundSelect();
+  });
+  // Transactions for all users
+  db.ref('transactions').on('value', snap => {
+    allTransactions = snap.exists() ? snap.val() : {};
+    refreshUI();
+  });
+  // Deposit settings
+  db.ref('depositSettings').on('value', snap => {
+    depositSettings = snap.exists() ? snap.val() : {};
+    populateDepositSettingsForm();
+  });
+}
+
+function refreshAll() { showToast('Data refreshed'); refreshUI(); }
+
+function refreshUI() {
+  updateStats();
+  renderUsersTable();
+  renderTransfersTable();
+  renderDepositsTable();
+  renderHomePending();
+  updateBadges();
+}
+
+// ========== STATS ==========
+function updateStats() {
+  const users = Object.values(allUsers);
+  const total = users.length;
+  const blocked = users.filter(u => u.blocked).length;
+  const active = total - blocked;
+  document.getElementById('statTotalUsers').textContent = total;
+  document.getElementById('statActiveUsers').textContent = active + ' active';
+  document.getElementById('statBlockedUsers').textContent = blocked;
+
+  let pendingT = 0, pendingD = 0;
+  Object.entries(allTransactions).forEach(([uid, txns]) => {
+    Object.values(txns).forEach(t => {
+      if (t.status === 'pending') {
+        if (t.type === 'debit') pendingT++;
+        if (t.type === 'credit') pendingD++;
+      }
+    });
+  });
+  document.getElementById('statPendingTransfers').textContent = pendingT;
+  document.getElementById('statPendingCount').textContent = pendingT + ' pending';
+  document.getElementById('statPendingDeposits').textContent = pendingD;
+  document.getElementById('statPendingDepositsCount').textContent = pendingD + ' pending';
+}
+
+function updateBadges() {
+  let pendingT = 0, pendingD = 0;
+  Object.values(allTransactions).forEach(txns => {
+    Object.values(txns).forEach(t => {
+      if (t.status === 'pending') { if(t.type==='debit') pendingT++; if(t.type==='credit') pendingD++; }
+    });
+  });
+  document.getElementById('pendingTransfersBadge').textContent = pendingT;
+  document.getElementById('pendingDepositsBadge').textContent = pendingD;
+}
+
+// ========== USERS TABLE ==========
+function renderUsersTable(data) {
+  const search = (document.getElementById('userSearch')?.value||'').toLowerCase();
+  const statusFilter = document.getElementById('userStatusFilter')?.value || 'all';
+  const tbody = document.getElementById('usersTableBody');
+  if (!tbody) return;
+
+  let users = Object.entries(allUsers).map(([uid,u])=>({uid,...u}));
+  if (search) users = users.filter(u =>
+    (u.fullName||'').toLowerCase().includes(search) ||
+    (u.email||'').toLowerCase().includes(search) ||
+    (u.accountNumber||'').includes(search)
+  );
+  if (statusFilter !== 'all') {
+    users = users.filter(u => statusFilter === 'blocked' ? u.blocked : !u.blocked);
+  }
+
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><svg class="icon"><use href="#ic-users"/></svg><p>No users found</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = users.map(u => {
+    const sym = getCurrSym(u.currency);
+    const bal = sym + parseFloat(u.balance||0).toFixed(2);
+    const isBlocked = !!u.blocked;
+    return `
+    <tr>
+      <td>
+        <div class="user-cell">
+          <div class="u-avatar ${isBlocked?'blocked':''}">${initials(u)}</div>
+          <div>
+            <div class="td-name">${u.fullName||'—'}</div>
+            <div class="td-sub">${u.email||'—'}</div>
+          </div>
+        </div>
+      </td>
+      <td><span style="font-family:monospace;font-size:12px">${u.accountNumber||'—'}</span></td>
+      <td style="font-weight:800;color:var(--teal-d)">${bal}</td>
+      <td>${(u.currency||'').split(' ')[0]||'—'}</td>
+      <td><span class="badge ${isBlocked?'badge-danger':'badge-success'}">${isBlocked?'Blocked':'Active'}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-sm btn-outline" onclick="viewUser('${u.uid}')">
+            <svg class="icon"><use href="#ic-eye"/></svg> View
+          </button>
+          <button class="btn btn-sm ${isBlocked?'btn-success':'btn-danger'}" onclick="toggleBlock('${u.uid}',${isBlocked})">
+            <svg class="icon"><use href="${isBlocked?'#ic-user-check':'#ic-ban'}"/></svg>
+            ${isBlocked?'Unblock':'Block'}
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterUsers() { renderUsersTable(); }
+
+// ========== VIEW USER DETAIL ==========
+function viewUser(uid) {
+  const u = allUsers[uid];
+  if (!u) return;
+  const isBlocked = !!u.blocked;
+  document.getElementById('userModalName').textContent = u.fullName || '—';
+  document.getElementById('userModalEmail').textContent = u.email || '—';
+
+  const sym = getCurrSym(u.currency);
+  const bal = sym + parseFloat(u.balance||0).toFixed(2);
+
+  // Get user transactions
+  const txns = allTransactions[uid] ? Object.values(allTransactions[uid]).sort((a,b)=>new Date(b.date)-new Date(a.date)) : [];
+  const recentTxns = txns.slice(0,6);
+
+  const txnHtml = recentTxns.length ? recentTxns.map(t => {
+    const sign = t.type==='credit'?'+':'-';
+    const colClass = t.type==='credit'?'var(--success)':'var(--danger)';
+    return `<div class="detail-row">
+      <div><div style="font-size:13px;font-weight:700">${t.description||'Transaction'}</div><div class="td-sub">${fmtDate(t.date)} · ${t.method||''}</div></div>
+      <div style="text-align:right">
+        <div style="font-weight:800;color:${colClass}">${sign}${sym}${parseFloat(t.amount||0).toFixed(2)}</div>
+        <span class="badge ${t.status==='pending'?'badge-warning':t.status==='approved'||t.status==='completed'?'badge-success':'badge-danger'}" style="font-size:9px">${t.status||'completed'}</span>
+      </div>
+    </div>`;
+  }).join('') : '<p style="color:var(--ink3);font-size:13px;padding:12px 0">No transactions yet.</p>';
+
+  document.getElementById('userModalBody').innerHTML = `
+    <div class="dep-section" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Balance</div>
+          <div style="font-size:28px;font-weight:900;color:var(--teal-d)">${bal}</div>
+        </div>
+        <span class="badge ${isBlocked?'badge-danger':'badge-success'}" style="font-size:12px;padding:6px 14px">${isBlocked?'Blocked':'Active'}</span>
+      </div>
+    </div>
+    <div class="user-info-grid" style="margin-bottom:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+      ${infoField('First Name', u.firstName)}
+      ${infoField('Last Name', u.lastName)}
+      ${infoField('Phone', u.phone)}
+      ${infoField('Country', u.country)}
+      ${infoField('Account Type', u.accountType)}
+      ${infoField('Account No.', u.accountNumber)}
+      ${infoField('Currency', u.currency)}
+      ${infoField('Employment', u.employment)}
+      ${infoField('City', u.city)}
+      ${infoField('Address', u.address)}
+      ${infoField('Member Since', u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB') : '—')}
+      ${infoField('DOB', u.dob)}
+    </div>
+    <div class="dep-section" style="margin-bottom:16px">
+      <div class="dep-section-title">Recent Transactions</div>
+      ${txnHtml}
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="closeModal('userModal');navigate('fund');preselectFundUser('${uid}')">
+        <svg class="icon"><use href="#ic-dollar"/></svg> Fund User
+      </button>
+      <button class="btn ${isBlocked?'btn-success':'btn-danger'}" onclick="toggleBlock('${uid}',${isBlocked})">
+        <svg class="icon"><use href="${isBlocked?'#ic-user-check':'#ic-ban'}"/></svg>
+        ${isBlocked?'Unblock Account':'Block Account'}
+      </button>
+      <button class="btn btn-outline" onclick="closeModal('userModal')">Close</button>
+    </div>`;
+  openModal('userModal');
+}
+
+function infoField(label, val) {
+  return `<div class="info-field"><label>${label}</label><p>${val||'—'}</p></div>`;
+}
+
+// ========== BLOCK / UNBLOCK ==========
+async function toggleBlock(uid, currentlyBlocked) {
+  const u = allUsers[uid];
+  if (!u) return;
+  const action = currentlyBlocked ? 'unblock' : 'block';
+  const confirmHtml = `
+    <div class="modal-header">
+      <div class="modal-icon ${currentlyBlocked?'teal':'red'}">
+        <svg class="icon"><use href="${currentlyBlocked?'#ic-user-check':'#ic-ban'}"/></svg>
+      </div>
+      <div>
+        <p class="modal-title">${currentlyBlocked?'Unblock':'Block'} Account</p>
+        <p class="modal-sub">${u.fullName||u.email}</p>
+      </div>
+    </div>
+    <p style="font-size:13.5px;color:var(--ink2);margin-bottom:20px">
+      ${currentlyBlocked
+        ? 'This will restore full access to the user\'s account.'
+        : 'The user will be locked out and see a suspended screen immediately.'}
+    </p>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn ${currentlyBlocked?'btn-success':'btn-danger'}" onclick="executeBlock('${uid}',${currentlyBlocked})">
+        <svg class="icon"><use href="${currentlyBlocked?'#ic-user-check':'#ic-ban'}"/></svg>
+        Yes, ${currentlyBlocked?'Unblock':'Block'}
+      </button>
+    </div>`;
+  document.getElementById('confirmModalBody').innerHTML = confirmHtml;
+  openModal('confirmModal');
+}
+
+async function executeBlock(uid, currentlyBlocked) {
+  closeModal('confirmModal');
+  try {
+    await db.ref('users/'+uid+'/blocked').set(!currentlyBlocked);
+    showToast('Account ' + (!currentlyBlocked?'blocked':'unblocked') + ' successfully');
+    closeModal('userModal');
+  } catch(e) { showToast('Error: '+e.message); }
+}
+
+// ========== FUND USER ==========
+function populateFundSelect() {
+  const sel = document.getElementById('fundUserSelect');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Select a user —</option>';
+  Object.entries(allUsers).forEach(([uid,u]) => {
+    const opt = document.createElement('option');
+    opt.value = uid;
+    opt.textContent = (u.fullName||'Unknown') + ' — ' + (u.email||uid);
+    sel.appendChild(opt);
+  });
+  if (current) sel.value = current;
+}
+
+function preselectFundUser(uid) {
+  const sel = document.getElementById('fundUserSelect');
+  if (sel) { sel.value = uid; onFundUserChange(); }
+}
+
+function onFundUserChange() {
+  const uid = document.getElementById('fundUserSelect').value;
+  const infoDiv = document.getElementById('fundUserInfo');
+  if (!uid) { infoDiv.style.display = 'none'; return; }
+  const u = allUsers[uid];
+  if (!u) { infoDiv.style.display = 'none'; return; }
+  const sym = getCurrSym(u.currency);
+  document.getElementById('fundCurrentBal').textContent = sym + parseFloat(u.balance||0).toFixed(2);
+  document.getElementById('fundUserEmail').textContent = u.email || '—';
+  infoDiv.style.display = 'block';
+}
+
+function setFundType(type) {
+  fundType = type;
+  document.getElementById('fundTypeCredit').className = 'fund-type-btn credit' + (type==='credit'?' active':'');
+  document.getElementById('fundTypeDebit').className = 'fund-type-btn debit' + (type==='debit'?' active':'');
+}
+
+async function submitFund() {
+  const uid = document.getElementById('fundUserSelect').value;
+  const amount = parseFloat(document.getElementById('fundAmount').value);
+  const desc = document.getElementById('fundDesc').value.trim();
+  const alertEl = document.getElementById('fundAlert');
+  alertEl.innerHTML = '';
+
+  if (!uid) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please select a user</div>'; return; }
+  if (!amount || amount <= 0) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Enter a valid amount</div>'; return; }
+  if (!desc) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please enter a description</div>'; return; }
+
+  const u = allUsers[uid];
+  const sym = getCurrSym(u.currency);
+
+  if (fundType === 'debit' && amount > parseFloat(u.balance||0)) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Amount exceeds user balance</div>';
+    return;
+  }
+
+  const btn = document.getElementById('fundSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Processing…';
+
+  try {
+    const currentBal = parseFloat(u.balance||0);
+    const newBal = fundType==='credit' ? currentBal+amount : currentBal-amount;
+    await db.ref('users/'+uid+'/balance').set(parseFloat(newBal.toFixed(2)));
+    await db.ref('transactions/'+uid).push({
+      type: fundType,
+      amount: amount,
+      description: desc,
+      method: 'Admin',
+      status: 'completed',
+      date: new Date().toISOString()
+    });
+    showToast(`${fundType==='credit'?'Funded':'Deducted'} ${sym}${amount.toFixed(2)} ${fundType==='credit'?'to':'from'} ${u.fullName||'user'}`);
+    document.getElementById('fundAmount').value = '';
+    document.getElementById('fundDesc').value = '';
+    onFundUserChange();
+  } catch(e) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>'+e.message+'</div>';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="icon"><use href="#ic-check"/></svg> Apply Transaction';
+}
+
+// ========== TRANSFERS TABLE ==========
+function getAllTransfers() {
+  const list = [];
+  Object.entries(allTransactions).forEach(([uid, txns]) => {
+    Object.entries(txns).forEach(([tid, t]) => {
+      if (t.type === 'debit') list.push({...t, uid, tid});
+    });
+  });
+  return list.sort((a,b) => new Date(b.date)-new Date(a.date));
+}
+
+function renderTransfersTable() {
+  const search = (document.getElementById('transferSearch')?.value||'').toLowerCase();
+  const statusFilter = document.getElementById('transferStatusFilter')?.value||'all';
+  const tbody = document.getElementById('transfersTableBody');
+  if (!tbody) return;
+
+  let list = getAllTransfers();
+  if (search) list = list.filter(t => {
+    const u = allUsers[t.uid];
+    return (u?.fullName||'').toLowerCase().includes(search) ||
+           (t.description||'').toLowerCase().includes(search);
+  });
+  if (statusFilter !== 'all') list = list.filter(t => t.status===statusFilter);
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><svg class="icon"><use href="#ic-send"/></svg><p>No transfers found</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(t => {
+    const u = allUsers[t.uid] || {};
+    const sym = getCurrSym(u.currency);
+    const isPending = t.status === 'pending';
+    return `
+    <tr class="${isPending?'pending-row':''}">
+      <td>
+        <div class="user-cell">
+          <div class="u-avatar">${initials(u)}</div>
+          <div>
+            <div class="td-name">${u.fullName||'Unknown'}</div>
+            <div class="td-sub">${u.email||t.uid}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-weight:800;color:var(--danger)">-${sym}${parseFloat(t.amount||0).toFixed(2)}</td>
+      <td style="max-width:180px;white-space:normal;font-size:12px">${t.description||'—'}</td>
+      <td>${t.method||'—'}</td>
+      <td style="font-size:12px;white-space:nowrap">${fmtDate(t.date)}</td>
+      <td><span class="badge ${t.status==='pending'?'badge-warning':t.status==='approved'||t.status==='completed'?'badge-success':'badge-danger'}">${t.status||'—'}</span></td>
+      <td>
+        <div class="action-btns">
+          ${isPending ? `
+            <button class="btn btn-sm btn-success" onclick="approveTransaction('${t.uid}','${t.tid}','transfer')">
+              <svg class="icon"><use href="#ic-check"/></svg> Approve
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="rejectTransaction('${t.uid}','${t.tid}')">
+              <svg class="icon"><use href="#ic-x"/></svg> Reject
+            </button>
+          ` : `<span style="font-size:12px;color:var(--ink3)">${t.status}</span>`}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTransfers() { renderTransfersTable(); }
+
+// ========== DEPOSITS TABLE ==========
+function getAllDeposits() {
+  const list = [];
+  Object.entries(allTransactions).forEach(([uid, txns]) => {
+    Object.entries(txns).forEach(([tid, t]) => {
+      if (t.type === 'credit') list.push({...t, uid, tid});
+    });
+  });
+  return list.sort((a,b) => new Date(b.date)-new Date(a.date));
+}
+
+function renderDepositsTable() {
+  const search = (document.getElementById('depositSearch')?.value||'').toLowerCase();
+  const statusFilter = document.getElementById('depositStatusFilter')?.value||'all';
+  const tbody = document.getElementById('depositsTableBody');
+  if (!tbody) return;
+
+  let list = getAllDeposits();
+  if (search) list = list.filter(t => {
+    const u = allUsers[t.uid];
+    return (u?.fullName||'').toLowerCase().includes(search) ||
+           (t.method||'').toLowerCase().includes(search);
+  });
+  if (statusFilter !== 'all') list = list.filter(t => t.status===statusFilter);
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><svg class="icon"><use href="#ic-deposit"/></svg><p>No deposits found</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(t => {
+    const u = allUsers[t.uid] || {};
+    const sym = getCurrSym(u.currency);
+    const isPending = t.status === 'pending';
+    return `
+    <tr class="${isPending?'pending-row':''}">
+      <td>
+        <div class="user-cell">
+          <div class="u-avatar">${initials(u)}</div>
+          <div>
+            <div class="td-name">${u.fullName||'Unknown'}</div>
+            <div class="td-sub">${u.email||t.uid}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-weight:800;color:var(--success)">+${sym}${parseFloat(t.amount||0).toFixed(2)}</td>
+      <td>${t.method||'—'}</td>
+      <td style="font-size:12px;white-space:nowrap">${fmtDate(t.date)}</td>
+      <td><span class="badge ${t.status==='pending'?'badge-warning':t.status==='approved'||t.status==='completed'?'badge-success':'badge-danger'}">${t.status||'—'}</span></td>
+      <td>
+        <div class="action-btns">
+          ${isPending ? `
+            <button class="btn btn-sm btn-success" onclick="approveTransaction('${t.uid}','${t.tid}','deposit')">
+              <svg class="icon"><use href="#ic-check"/></svg> Approve
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="rejectTransaction('${t.uid}','${t.tid}')">
+              <svg class="icon"><use href="#ic-x"/></svg> Reject
+            </button>
+          ` : `<span style="font-size:12px;color:var(--ink3)">${t.status}</span>`}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterDeposits() { renderDepositsTable(); }
+
+// ========== APPROVE / REJECT ==========
+async function approveTransaction(uid, tid, txnType) {
+  try {
+    const txn = allTransactions[uid]?.[tid];
+    if (!txn) return;
+    await db.ref('transactions/'+uid+'/'+tid+'/status').set('approved');
+    if (txnType === 'deposit') {
+      // Credit user balance
+      const u = allUsers[uid];
+      const newBal = parseFloat(u?.balance||0) + parseFloat(txn.amount||0);
+      await db.ref('users/'+uid+'/balance').set(parseFloat(newBal.toFixed(2)));
+    }
+    // For transfers, the user dashboard handles deduction on status change
+    showToast((txnType==='deposit'?'Deposit':'Transfer') + ' approved successfully');
+  } catch(e) { showToast('Error: '+e.message); }
+}
+
+async function rejectTransaction(uid, tid) {
+  try {
+    await db.ref('transactions/'+uid+'/'+tid+'/status').set('rejected');
+    showToast('Transaction rejected');
+  } catch(e) { showToast('Error: '+e.message); }
+}
+
+// ========== HOME PENDING ==========
+function renderHomePending() {
+  const pendingT = getAllTransfers().filter(t=>t.status==='pending').slice(0,5);
+  const pendingD = getAllDeposits().filter(t=>t.status==='pending').slice(0,5);
+
+  const tBody = document.getElementById('homePendingTransfers');
+  if (tBody) {
+    if (!pendingT.length) {
+      tBody.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="padding:28px"><svg class="icon"><use href="#ic-check-circle"/></svg><p>No pending transfers</p></div></td></tr>`;
+    } else {
+      tBody.innerHTML = pendingT.map(t => {
+        const u = allUsers[t.uid]||{};
+        const sym = getCurrSym(u.currency);
+        return `<tr class="pending-row">
+          <td><div class="user-cell"><div class="u-avatar">${initials(u)}</div><div><div class="td-name">${u.fullName||'Unknown'}</div><div class="td-sub">${u.email||''}</div></div></div></td>
+          <td style="font-weight:800;color:var(--danger)">-${sym}${parseFloat(t.amount||0).toFixed(2)}</td>
+          <td style="font-size:12px;max-width:140px;white-space:normal">${t.description||'—'}</td>
+          <td style="font-size:11.5px;white-space:nowrap">${fmtDate(t.date)}</td>
+          <td><div class="action-btns">
+            <button class="btn btn-sm btn-success" onclick="approveTransaction('${t.uid}','${t.tid}','transfer')"><svg class="icon"><use href="#ic-check"/></svg> Approve</button>
+            <button class="btn btn-sm btn-danger" onclick="rejectTransaction('${t.uid}','${t.tid}')"><svg class="icon"><use href="#ic-x"/></svg> Reject</button>
+          </div></td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  const dBody = document.getElementById('homePendingDeposits');
+  if (dBody) {
+    if (!pendingD.length) {
+      dBody.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="padding:28px"><svg class="icon"><use href="#ic-check-circle"/></svg><p>No pending deposits</p></div></td></tr>`;
+    } else {
+      dBody.innerHTML = pendingD.map(t => {
+        const u = allUsers[t.uid]||{};
+        const sym = getCurrSym(u.currency);
+        return `<tr class="pending-row">
+          <td><div class="user-cell"><div class="u-avatar">${initials(u)}</div><div><div class="td-name">${u.fullName||'Unknown'}</div><div class="td-sub">${u.email||''}</div></div></div></td>
+          <td style="font-weight:800;color:var(--success)">+${sym}${parseFloat(t.amount||0).toFixed(2)}</td>
+          <td>${t.method||'—'}</td>
+          <td style="font-size:11.5px;white-space:nowrap">${fmtDate(t.date)}</td>
+          <td><div class="action-btns">
+            <button class="btn btn-sm btn-success" onclick="approveTransaction('${t.uid}','${t.tid}','deposit')"><svg class="icon"><use href="#ic-check"/></svg> Approve</button>
+            <button class="btn btn-sm btn-danger" onclick="rejectTransaction('${t.uid}','${t.tid}')"><svg class="icon"><use href="#ic-x"/></svg> Reject</button>
+          </div></td>
+        </tr>`;
+      }).join('');
+    }
+  }
+}
+
+// ========== DEPOSIT SETTINGS ==========
+function populateDepositSettingsForm() {
+  const ds = depositSettings;
+  const v = id => document.getElementById(id);
+  if (v('ds-acctName')) v('ds-acctName').value = ds.bankAccountName||'';
+  if (v('ds-acctNum')) v('ds-acctNum').value = ds.bankAccountNumber||'';
+  if (v('ds-bankName')) v('ds-bankName').value = ds.bankName||'';
+  if (v('ds-routing')) v('ds-routing').value = ds.routingCode||'';
+  const ca = ds.cryptoAddresses||{};
+  if (v('ds-btc')) v('ds-btc').value = ca.BTC||'';
+  if (v('ds-eth')) v('ds-eth').value = ca.ETH||'';
+  if (v('ds-usdt')) v('ds-usdt').value = ca.USDT||'';
+}
+
+async function saveBankSettings() {
+  const alertEl = document.getElementById('bankSettingsAlert');
+  alertEl.innerHTML = '';
+  const updates = {
+    bankAccountName: document.getElementById('ds-acctName').value.trim(),
+    bankAccountNumber: document.getElementById('ds-acctNum').value.trim(),
+    bankName: document.getElementById('ds-bankName').value.trim(),
+    routingCode: document.getElementById('ds-routing').value.trim()
+  };
+  if (!updates.bankAccountName || !updates.bankAccountNumber || !updates.bankName) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please fill all bank fields</div>';
+    return;
+  }
+  try {
+    await db.ref('depositSettings').update(updates);
+    alertEl.innerHTML = '<div class="alert alert-success"><svg class="icon"><use href="#ic-check-circle"/></svg>Bank details saved! All users will see updated info.</div>';
+    showToast('Bank details updated for all users');
+  } catch(e) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>'+e.message+'</div>'; }
+}
+
+async function saveCryptoSettings() {
+  const alertEl = document.getElementById('cryptoSettingsAlert');
+  alertEl.innerHTML = '';
+  const cryptoAddresses = {
+    BTC: document.getElementById('ds-btc').value.trim(),
+    ETH: document.getElementById('ds-eth').value.trim(),
+    USDT: document.getElementById('ds-usdt').value.trim()
+  };
+  try {
+    await db.ref('depositSettings/cryptoAddresses').set(cryptoAddresses);
+    alertEl.innerHTML = '<div class="alert alert-success"><svg class="icon"><use href="#ic-check-circle"/></svg>Crypto addresses saved! All users will see updated addresses.</div>';
+    showToast('Crypto addresses updated for all users');
+  } catch(e) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>'+e.message+'</div>'; }
+}
+
+// ========== NAVIGATION ==========
+const pageTitles = { home:'Dashboard', users:'All Users', fund:'Fund User', transfers:'Transfers', deposits:'Deposits', 'deposit-settings':'Deposit Settings' };
+
+function navigate(page) {
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-'+page);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => {
+    i.classList.remove('active');
+    const oc = i.getAttribute('onclick')||'';
+    if (oc.includes("'"+page+"'")) i.classList.add('active');
+  });
+  document.getElementById('pageTitle').textContent = pageTitles[page]||page;
+  closeSidebar();
+  window.scrollTo({top:0,behavior:'smooth'});
+  // Responsive: fix deposit settings grid
+  if (page === 'deposit-settings') {
+    const grid = document.getElementById('depSettingsGrid');
+    if (grid) grid.style.gridTemplateColumns = window.innerWidth < 768 ? '1fr' : '1fr 1fr';
+  }
+}
+
+// ========== SIDEBAR ==========
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const b = document.getElementById('sidebarBackdrop');
+  s.classList.toggle('open');
+  b.classList.toggle('show', s.classList.contains('open'));
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('show');
+}
+
+// ========== MODALS ==========
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); });
+});
+
+// ========== TOAST ==========
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3000);
+}
+
+// ========== SIGN OUT ==========
+function signOut() {
+  auth.signOut().then(() => window.location.href = 'adminlogin.html');
+}
+
+// ========== RESPONSIVE RESIZE ==========
+window.addEventListener('resize', () => {
+  const activePage = document.querySelector('.page-view.active');
+  if (activePage && activePage.id === 'page-deposit-settings') {
+    const grid = document.getElementById('depSettingsGrid');
+    if (grid) grid.style.gridTemplateColumns = window.innerWidth < 768 ? '1fr' : '1fr 1fr';
+  }
+});
+</script>
+</body>
+</html>

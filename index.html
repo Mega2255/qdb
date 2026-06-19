@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantum Digital Bank</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; background: #fff; }
+
+    /* ===================== NAV ===================== */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: #fff;
+      height: 58px;
+      display: flex; align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .nav-inner {
+      width: 100%; max-width: 1280px; margin: 0 auto;
+      padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 17px; font-weight: 900; letter-spacing: -0.04em;
+      color: #111; text-decoration: none; white-space: nowrap;
+    }
+    .nav-logo span { font-weight: 300; font-size: 10px; letter-spacing: 0.1em; color: #9ca3af; margin-left: 4px; vertical-align: middle; }
+    .nav-links-center { display: flex; align-items: center; gap: 2px; }
+    .nav-links-right { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; font-size: 14px; font-weight: 500; color: #111;
+      text-decoration: none; border-radius: 6px;
+      background: none; border: none; cursor: pointer; transition: background 0.15s;
+    }
+    .nav-link:hover { background: #f3f4f6; }
+    .nav-link .chev { font-size: 9px; color: #9ca3af; }
+    .nav-btn-apply {
+      display: inline-flex; align-items: center;
+      padding: 8px 20px; background: #2DD4C4; color: #fff;
+      font-size: 14px; font-weight: 600; border-radius: 7px;
+      border: none; cursor: pointer; text-decoration: none; transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .nav-btn-apply:hover { background: #0fb8a8; }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: #111; }
+    #mobile-drawer { display: none; position: fixed; top: 58px; left: 0; right: 0; z-index: 199; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 10px 20px 18px; }
+    #mobile-drawer.open { display: block; }
+    .mob-link { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; font-size: 15px; color: #111; text-decoration: none; border-bottom: 1px solid #f3f4f6; }
+
+    /* ===================== HERO ===================== */
+    .hero {
+      margin-top: 58px;
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 58px);
+      min-height: 520px;
+      overflow: hidden;
+      display: flex;
+      align-items: stretch;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      /* Hand holding phone — warm dark moody tones */
+      background-image: url('https://images.unsplash.com/photo-1598128558393-70ff21433be0?w=1800&q=85');
+      background-size: cover;
+      background-position: center center;
+      filter: brightness(0.48) saturate(0.85);
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(100deg, rgba(40,18,6,0.7) 0%, rgba(25,10,3,0.3) 50%, rgba(10,5,2,0.05) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    /* LEFT text */
+    .hero-text { flex: 0 0 auto; max-width: 420px; }
+    .hero-headline {
+      font-size: clamp(34px, 4.2vw, 56px);
+      font-weight: 900; line-height: 1.04;
+      color: #fff; letter-spacing: -0.03em; margin-bottom: 18px;
+    }
+    .hero-sub {
+      font-size: clamp(13px, 1.3vw, 15px);
+      color: rgba(255,255,255,0.82); line-height: 1.65;
+      margin-bottom: 30px; max-width: 320px;
+    }
+    .btn-learn {
+      display: inline-flex; align-items: center;
+      padding: 11px 26px; background: #2DD4C4; color: #fff;
+      font-size: 14px; font-weight: 600; border-radius: 7px;
+      border: none; cursor: pointer; text-decoration: none; transition: background 0.15s;
+    }
+    .btn-learn:hover { background: #0fb8a8; }
+
+    /* RIGHT phone */
+    .hero-phone-area {
+      flex: 1; display: flex; justify-content: flex-end;
+      align-items: flex-end; align-self: stretch;
+    }
+    .phone-shell {
+      width: clamp(260px, 32vw, 420px);
+      background: #fff;
+      border-radius: 46px 46px 0 0;
+      overflow: hidden;
+      /* dark bezel ring like screenshot */
+      box-shadow: 0 0 0 10px #1a1a1a, 0 0 0 11px #333, 0 40px 90px rgba(0,0,0,0.7);
+      transform: rotate(-4deg) translateX(5%);
+      transform-origin: bottom right;
+      margin-bottom: -2px;
+    }
+    /* notch */
+    .phone-notch {
+      background: #1a1a1a;
+      height: 28px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .phone-notch-pill {
+      width: 90px; height: 20px;
+      background: #111;
+      border-radius: 0 0 14px 14px;
+    }
+    .phone-statusbar {
+      background: #fff;
+      padding: 6px 20px 2px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .phone-statusbar .ptime { font-size: 12px; font-weight: 700; color: #111; }
+    .phone-statusbar .picons { display: flex; gap: 4px; align-items: center; color: #111; font-size: 10px; }
+    .phone-header {
+      background: #fff; padding: 4px 20px 10px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .phone-header .lbl { font-size: 11px; color: #9ca3af; }
+    .phone-header .amt { font-size: 24px; font-weight: 900; color: #111; letter-spacing: -0.03em; }
+    .spaces-hdr {
+      padding: 8px 20px 5px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: #fff;
+    }
+    .spaces-hdr .slbl { font-size: 11px; color: #9ca3af; }
+    .spaces-hdr .sadd { font-size: 12px; font-weight: 700; color: #2DD4C4; background: none; border: none; cursor: pointer; }
+    .space-row {
+      display: flex; align-items: stretch;
+      border-top: 1px solid #f3f4f6; background: #fff;
+    }
+    .space-img {
+      width: clamp(72px, 9vw, 100px);
+      aspect-ratio: 1; object-fit: cover; flex-shrink: 0;
+    }
+    .space-info { flex: 1; padding: 9px 14px; display: flex; flex-direction: column; justify-content: center; }
+    .sname { font-size: 12px; font-weight: 700; color: #111; }
+    .samt { font-size: 20px; font-weight: 900; color: #111; letter-spacing: -0.02em; line-height: 1.1; margin-top: 2px; }
+    .prog-wrap { display: flex; align-items: center; gap: 7px; margin-top: 3px; }
+    .prog-bar { flex: 1; height: 3px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+    .prog-fill { height: 100%; background: #2DD4C4; border-radius: 99px; }
+    .prog-pct { font-size: 10px; color: #9ca3af; white-space: nowrap; }
+    .phone-nav {
+      background: #fff; border-top: 1px solid #e5e7eb;
+      display: flex; justify-content: space-around; padding: 8px 0 12px;
+    }
+    .pnav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 10px; color: #9ca3af; background: none; border: none; cursor: pointer;
+    }
+    .pnav-item.act { color: #2DD4C4; }
+    .pnav-item i { font-size: 15px; }
+
+    /* ===================== WHATSAPP FLOAT ===================== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 58px;
+      height: 58px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      z-index: 500;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .whatsapp-float:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .whatsapp-float i {
+      color: #fff;
+      font-size: 28px;
+    }
+    @media (max-width: 640px) {
+      .whatsapp-float {
+        width: 52px;
+        height: 52px;
+        bottom: 18px;
+        right: 18px;
+      }
+      .whatsapp-float i { font-size: 25px; }
+    }
+
+    /* trust badges */
+    .trust-row {
+      position: absolute; bottom: 24px; right: 24px; z-index: 20;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tbadge {
+      background: rgba(255,255,255,0.11);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 10px; padding: 8px 12px; text-align: center;
+    }
+    .tbadge .ticon { font-size: 18px; color: #fff; margin-bottom: 3px; }
+    .tbadge .ttitle { font-size: 8.5px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.3; }
+    .tbadge .tsub { font-size: 7.5px; color: rgba(255,255,255,0.65); line-height: 1.4; }
+
+    /* hero responsive */
+    @media (max-width: 960px) {
+      .nav-links-center, .nav-links-right > *:not(.nav-btn-apply) { display: none; }
+      .hamburger { display: block; }
+      .hero { height: auto; min-height: auto; padding-bottom: 0; }
+      .hero-content { flex-direction: column; padding: 36px 24px 0; align-items: flex-start; gap: 28px; }
+      .hero-phone-area { width: 100%; justify-content: center; }
+      .phone-shell { transform: rotate(0) translateX(0); width: min(320px, 88vw); }
+      .trust-row { position: static; justify-content: center; flex-wrap: wrap; padding: 16px 20px; background: rgba(0,0,0,0.5); }
+    }
+    @media (max-width: 480px) {
+      .hero-headline { font-size: 30px; }
+      .phone-shell { width: 90vw; border-radius: 32px 32px 0 0; }
+    }
+
+    /* ===================== FEATURES SECTION ===================== */
+    .features-section {
+      background: #f5f3ef; /* warm off-white exactly like screenshot */
+      padding: 56px 0 64px;
+      margin-top: 6px; /* small gap from hero */
+    }
+    .features-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 40px;
+    }
+
+    /* Top row: headline left + arrows right */
+    .features-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 32px; gap: 20px;
+    }
+    .features-headline {
+      font-size: clamp(26px, 3.2vw, 40px);
+      font-weight: 900; line-height: 1.1;
+      color: #111; letter-spacing: -0.025em;
+    }
+    .feat-arrows {
+      display: flex; gap: 8px; align-items: center; flex-shrink: 0; margin-top: 6px;
+    }
+    .arr-btn {
+      width: 38px; height: 38px;
+      border: 1.5px solid #ccc; background: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 13px; color: #555; transition: border-color 0.15s, color 0.15s;
+    }
+    .arr-btn:hover { border-color: #2DD4C4; color: #2DD4C4; }
+
+    /* Cards row */
+    .feat-cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+    .feat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px 20px 0;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      min-height: 260px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .feat-card-tag {
+      font-size: 11px; font-weight: 600; color: #6b7280;
+      letter-spacing: 0.02em; margin-bottom: 8px;
+    }
+    .feat-card-title {
+      font-size: clamp(16px, 1.5vw, 21px);
+      font-weight: 800; line-height: 1.18;
+      color: #111; letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .feat-card-link {
+      font-size: 12px; font-weight: 700; color: #111;
+      text-decoration: underline; text-underline-offset: 2px;
+      cursor: pointer; background: none; border: none;
+      text-align: left; padding: 0; margin-bottom: 18px;
+    }
+    .feat-card-link:hover { color: #2DD4C4; }
+    /* illustration area — fills remaining space at bottom */
+    .feat-card-illus {
+      flex: 1;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 0;
+      min-height: 120px;
+    }
+    .feat-card-illus img {
+      width: 100%; max-height: 140px;
+      object-fit: contain; object-position: bottom;
+    }
+    /* SVG inline illustrations */
+    .feat-card-illus svg { width: 100%; max-height: 130px; }
+
+    /* Responsive features */
+    @media (max-width: 1024px) {
+      .feat-cards { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .feat-cards { grid-template-columns: repeat(2, 1fr); }
+      .features-inner { padding: 0 20px; }
+      .features-section { padding: 40px 0 48px; }
+    }
+    @media (max-width: 440px) {
+      .feat-cards { grid-template-columns: 1fr; }
+      .feat-card { min-height: 220px; }
+    }
+
+    /* ===================== CARD SLIDER SECTION ===================== */
+    .cards-section {
+      background: #f5f3ef;
+      padding: 60px 0 56px;
+      margin-top: 6px;
+    }
+    .cards-section-inner {
+      max-width: 860px; margin: 0 auto; padding: 0 20px;
+      text-align: center;
+    }
+    .cards-section-title {
+      font-size: clamp(26px, 3.8vw, 42px);
+      font-weight: 900; line-height: 1.12;
+      color: #111; letter-spacing: -0.025em;
+      margin-bottom: 44px;
+    }
+
+    /* Slider viewport */
+    .slider-viewport {
+      position: relative;
+      display: flex; align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 28px;
+    }
+    .slider-arrow {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      background: #fff; border: 1.5px solid #e5e7eb;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px; color: #555;
+      transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+      z-index: 10; position: relative;
+    }
+    .slider-arrow:hover { border-color: #2DD4C4; color: #2DD4C4; box-shadow: 0 2px 8px rgba(45,212,196,0.15); }
+
+    /* Cards track */
+    .slider-track-wrap {
+      flex: 1; overflow: hidden;
+      padding: 20px 0 24px;
+      margin: 0 16px;
+    }
+    .slider-track {
+      display: flex; align-items: center;
+      gap: 18px;
+      transition: transform 0.45s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+    }
+
+    /* Individual debit card */
+    .debit-card {
+      flex-shrink: 0;
+      width: 240px; height: 152px;
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
+      position: relative; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .debit-card.is-center {
+      transform: scale(1.06);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+      z-index: 5;
+    }
+    .debit-card.is-side {
+      transform: scale(0.94);
+      opacity: 0.82;
+    }
+    .debit-card.is-far {
+      transform: scale(0.88);
+      opacity: 0.55;
+    }
+
+    /* Card colours */
+    .debit-card.yellow  { background: #FFD93D; }
+    .debit-card.tan     { background: #B5A898; }
+    .debit-card.teal    { background: #2DD4C4; }
+    .debit-card.dark    { background: #1F2937; }
+    .debit-card.purple  { background: #7C3AED; }
+
+    .dc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .dc-brand {
+      font-size: 13px; font-weight: 900; letter-spacing: -0.02em;
+      color: rgba(0,0,0,0.75); line-height: 1;
+    }
+    .debit-card.dark  .dc-brand,
+    .debit-card.purple .dc-brand { color: rgba(255,255,255,0.85); }
+    .dc-type {
+      font-size: 9.5px; font-weight: 600; color: rgba(0,0,0,0.55);
+      text-align: right; line-height: 1.3;
+    }
+    .debit-card.dark  .dc-type,
+    .debit-card.purple .dc-type { color: rgba(255,255,255,0.6); }
+
+    .dc-bottom { display: flex; justify-content: flex-end; align-items: flex-end; }
+    /* Mastercard logo */
+    .mc-logo { display: flex; align-items: center; }
+    .mc-logo .mc-r { width: 28px; height: 28px; border-radius: 50%; }
+    .mc-logo .mc-left  { background: #EB001B; margin-right: -10px; }
+    .mc-logo .mc-right { background: #F79E1B; opacity: 0.95; }
+    .dc-world { font-size: 8px; font-weight: 600; color: rgba(0,0,0,0.5); margin-right: 8px; text-align: right; line-height: 1.3; }
+    .debit-card.dark  .dc-world,
+    .debit-card.purple .dc-world { color: rgba(255,255,255,0.55); }
+
+    /* Shine overlay */
+    .debit-card::before {
+      content: '';
+      position: absolute; top: -40%; right: -20%;
+      width: 70%; height: 120%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Card info below slider */
+    .card-info { min-height: 80px; }
+    .card-info-name {
+      font-size: 17px; font-weight: 800; color: #111;
+      letter-spacing: -0.01em; margin-bottom: 8px;
+    }
+    .card-info-desc {
+      font-size: 14px; color: #6b7280; line-height: 1.6;
+      max-width: 340px; margin: 0 auto 20px;
+    }
+    .card-info-btn {
+      display: inline-flex; align-items: center;
+      padding: 11px 28px; background: #2DD4C4; color: #fff;
+      font-size: 14px; font-weight: 600; border-radius: 7px;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .card-info-btn:hover { background: #0fb8a8; }
+
+    /* Dots */
+    .slider-dots {
+      display: flex; justify-content: center; gap: 7px; margin-top: 24px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #D1D5DB; cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      border: none; padding: 0;
+    }
+    .dot.active { background: #2DD4C4; transform: scale(1.2); }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .debit-card { width: 200px; height: 128px; }
+      .cards-section { padding: 44px 0 44px; }
+    }
+    @media (max-width: 480px) {
+      .debit-card { width: 170px; height: 110px; padding: 14px 16px; }
+      .dc-brand { font-size: 11px; }
+      .mc-logo .mc-r { width: 22px; height: 22px; }
+      .slider-track-wrap { margin: 0 8px; }
+    }
+
+    /* ===================== SAVINGS ACCOUNTS SECTION ===================== */
+    .savings-section {
+      background: #f5f3ef;
+      padding: 56px 0 48px;
+      margin-top: 6px;
+    }
+    .savings-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 40px;
+    }
+    .savings-eyebrow {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; color: #374151;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .savings-eyebrow i { font-size: 13px; color: #374151; }
+    .savings-headline {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900; line-height: 1.1;
+      color: #111; letter-spacing: -0.025em;
+      margin-bottom: 32px;
+    }
+
+    .savings-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .savings-card {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 4 / 5;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .savings-card img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+    .savings-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.72) 100%);
+      z-index: 2;
+    }
+    .savings-card-content {
+      position: relative; z-index: 3;
+      padding: 22px 22px 26px;
+      color: #fff;
+    }
+    .savings-card-title {
+      font-size: clamp(18px, 1.8vw, 22px);
+      font-weight: 800; letter-spacing: -0.015em;
+      margin-bottom: 8px;
+    }
+    .savings-card-desc {
+      font-size: 13px; line-height: 1.5;
+      color: rgba(255,255,255,0.88);
+      margin-bottom: 18px;
+      max-width: 230px;
+    }
+    .savings-card-btn {
+      display: inline-flex; align-items: center;
+      padding: 10px 18px;
+      background: transparent;
+      border: 1.5px solid #fff;
+      color: #fff;
+      font-size: 13px; font-weight: 700;
+      border-radius: 7px;
+      cursor: pointer; text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .savings-card-btn:hover { background: #fff; color: #111; }
+
+    .savings-disclaimer {
+      font-size: 10.5px; line-height: 1.6;
+      color: #6b7280;
+      margin-top: 24px;
+      max-width: 1100px;
+    }
+
+    /* Responsive savings section */
+    @media (max-width: 900px) {
+      .savings-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .savings-inner { padding: 0 20px; }
+      .savings-section { padding: 40px 0 36px; }
+    }
+    @media (max-width: 560px) {
+      .savings-cards { grid-template-columns: 1fr; gap: 14px; }
+      .savings-card { aspect-ratio: 16 / 11; }
+      .savings-card-desc { max-width: 100%; }
+    }
+
+    /* ===================== FUTURE-FIT BANKING SECTION ===================== */
+    .futurefit-section {
+      background: #f5f3ef;
+      padding: 48px 0 64px;
+    }
+    .futurefit-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 40px;
+    }
+    .futurefit-image-wrap {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      aspect-ratio: 16 / 8.4;
+      margin-bottom: 40px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .futurefit-image-wrap img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+    .futurefit-image-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(100deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.35) 32%, rgba(0,0,0,0) 58%);
+      z-index: 2;
+    }
+    .futurefit-overlay {
+      position: absolute; left: 0; bottom: 0; z-index: 3;
+      padding: 28px 32px 32px;
+      max-width: 420px;
+    }
+    .futurefit-title {
+      font-size: clamp(26px, 3.6vw, 38px);
+      font-weight: 900; color: #fff; letter-spacing: -0.025em;
+      line-height: 1.08; margin-bottom: 10px;
+    }
+    .futurefit-desc {
+      font-size: clamp(12.5px, 1.3vw, 14.5px);
+      color: rgba(255,255,255,0.92); line-height: 1.55;
+      font-weight: 500;
+    }
+
+    .futurefit-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .ff-col-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    .ff-col-icon.green  { background: #2DD4C4; color: #064e3b; }
+    .ff-col-icon.pink   { background: #F472B6; color: #831843; }
+    .ff-col-icon.yellow { background: #FDE047; color: #713f12; }
+    .ff-col-title {
+      font-size: 17px; font-weight: 800; color: #111;
+      letter-spacing: -0.015em; margin-bottom: 8px;
+    }
+    .ff-col-desc {
+      font-size: 13.5px; color: #4b5563; line-height: 1.6;
+    }
+
+    /* Responsive future-fit */
+    @media (max-width: 900px) {
+      .futurefit-image-wrap { aspect-ratio: 16 / 11; }
+      .futurefit-cols { grid-template-columns: repeat(2, 1fr); gap: 28px 24px; }
+    }
+    @media (max-width: 700px) {
+      .futurefit-inner { padding: 0 20px; }
+      .futurefit-section { padding: 36px 0 48px; }
+      .futurefit-overlay { padding: 20px 22px 24px; max-width: 90%; }
+    }
+    @media (max-width: 560px) {
+      .futurefit-image-wrap { aspect-ratio: 4 / 5; }
+      .futurefit-cols { grid-template-columns: 1fr; gap: 26px; }
+    }
+
+    /* ===================== CLOSING CTA SECTION ===================== */
+    .cta-section {
+      background: #f5f3ef;
+      padding: 0 0 64px;
+    }
+    .cta-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 40px;
+    }
+    .cta-card {
+      background: #2d1b3d;
+      border-radius: 22px;
+      padding: 48px 32px 52px;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+    }
+    .cta-logo {
+      width: 46px; height: 46px;
+      background: rgba(45,212,196,0.12);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 26px;
+    }
+    .cta-logo span {
+      font-size: 22px; font-weight: 900; color: #2DD4C4;
+    }
+    .cta-headline {
+      font-size: clamp(24px, 3.4vw, 36px);
+      font-weight: 800; color: #fff; letter-spacing: -0.02em;
+      line-height: 1.2; margin-bottom: 14px;
+      max-width: 560px;
+    }
+    .cta-sub {
+      font-size: clamp(11.5px, 1.1vw, 13px);
+      font-weight: 700; color: rgba(255,255,255,0.75);
+      letter-spacing: 0.01em; margin-bottom: 26px;
+    }
+    .cta-btn {
+      display: inline-flex; align-items: center;
+      padding: 11px 28px; background: #2DD4C4; color: #fff;
+      font-size: 14px; font-weight: 600; border-radius: 7px;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: background 0.15s;
+    }
+    .cta-btn:hover { background: #0fb8a8; }
+
+    /* Responsive CTA */
+    @media (max-width: 700px) {
+      .cta-inner { padding: 0 20px; }
+      .cta-card { padding: 40px 24px 44px; border-radius: 18px; }
+    }
+    @media (max-width: 480px) {
+      .cta-headline { font-size: 24px; }
+      .cta-card { padding: 34px 18px 38px; }
+    }
+
+    /* ===================== FOOTER SECTION ===================== */
+    .site-footer {
+      background: #2d1b3d;
+      padding: 56px 0 40px;
+    }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 40px;
+    }
+    .footer-wordmark {
+      font-size: clamp(32px, 7.2vw, 96px);
+      font-weight: 900; letter-spacing: -0.03em;
+      line-height: 1.02;
+      color: #2DD4C4;
+      margin-bottom: clamp(32px, 6vw, 56px);
+      word-break: break-word;
+    }
+    .footer-cols {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 44px;
+    }
+    .footer-col-title {
+      font-size: 12.5px; font-weight: 800; color: #fff;
+      letter-spacing: 0.01em; margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 11px; }
+    .footer-col a {
+      font-size: 12.5px; color: rgba(255,255,255,0.7);
+      text-decoration: none; line-height: 1.5;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: color 0.15s;
+    }
+    .footer-col a:hover { color: #fff; }
+    .footer-status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #22c55e; flex-shrink: 0;
+    }
+
+    .footer-connect-title {
+      font-size: 12.5px; font-weight: 800; color: #fff;
+      margin-bottom: 16px;
+    }
+    .footer-social {
+      display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .footer-social a {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .footer-social a:hover { background: rgba(255,255,255,0.22); }
+
+    /* Responsive footer */
+    @media (max-width: 900px) {
+      .footer-cols { grid-template-columns: repeat(2, 1fr); gap: 32px 24px; }
+    }
+    @media (max-width: 700px) {
+      .footer-inner { padding: 0 20px; }
+      .site-footer { padding: 44px 0 32px; }
+    }
+    @media (max-width: 480px) {
+      .footer-cols { grid-template-columns: 1fr; gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">QUANTUM <span>DIGITAL BANK</span></a>
+
+    <div class="nav-links-center">
+      <button class="nav-link">Personal <i class="fa-solid fa-chevron-down chev"></i></button>
+      <button class="nav-link">Business <i class="fa-solid fa-chevron-down chev"></i></button>
+    </div>
+
+    <div class="nav-links-right">
+      <button class="nav-link">About <i class="fa-solid fa-chevron-down chev"></i></button>
+      <a href="#" class="nav-link">Help</a>
+      <a href="login.html" class="nav-link">Log in</a>
+      <a href="apply.html" class="nav-btn-apply">Apply now</a>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <i class="fa-solid fa-bars" style="font-size:20px;"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile drawer -->
+<div id="mobile-drawer">
+  <a href="#" class="mob-link">Personal <i class="fa-solid fa-chevron-right" style="font-size:11px;color:#9ca3af;"></i></a>
+  <a href="#" class="mob-link">Business <i class="fa-solid fa-chevron-right" style="font-size:11px;color:#9ca3af;"></i></a>
+  <a href="#" class="mob-link">About <i class="fa-solid fa-chevron-right" style="font-size:11px;color:#9ca3af;"></i></a>
+  <a href="#" class="mob-link">Help <i class="fa-solid fa-chevron-right" style="font-size:11px;color:#9ca3af;"></i></a>
+  <a href="login.html" class="mob-link">Log in <i class="fa-solid fa-chevron-right" style="font-size:11px;color:#9ca3af;"></i></a>
+  <a href="apply.html" class="nav-btn-apply" style="display:block;text-align:center;margin-top:14px;">Apply now</a>
+</div>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-content">
+    <!-- LEFT -->
+    <div class="hero-text">
+      <h1 class="hero-headline">Good with money<br>starts here.</h1>
+      <p class="hero-sub">Organise your money, build great habits and stay in control of your spending.</p>
+      <a href="#" class="btn-learn">Learn more</a>
+    </div>
+
+    <!-- RIGHT: phone -->
+    <div class="hero-phone-area">
+      <div class="phone-shell">
+        <!-- Notch -->
+        <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+        <!-- Status -->
+        <div class="phone-statusbar">
+          <span class="ptime">9:41</span>
+          <div class="picons">
+            <i class="fa-solid fa-signal"></i>
+            <i class="fa-solid fa-wifi"></i>
+            <i class="fa-solid fa-battery-full"></i>
+          </div>
+        </div>
+        <!-- Header -->
+        <div class="phone-header">
+          <div class="lbl">Total</div>
+          <div class="amt">Cheap</div>
+        </div>
+        <!-- Spaces header -->
+        <div class="spaces-hdr">
+          <span class="slbl">Regular</span>
+          <button class="sadd">A area</button>
+        </div>
+        <!-- Row 1: Chester dog -->
+        <div class="space-row">
+          <img class="space-img" src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&q=80" alt="Chester" />
+          <div class="space-info">
+            <div class="sname">Elite</div>
+            <div class="samt">8.000</div>
+          </div>
+        </div>
+        <!-- Row 2: Santorini -->
+        <div class="space-row">
+          <img class="space-img" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&q=80" alt="Santorini" />
+          <div class="space-info">
+            <div class="sname"></div>
+            <div class="samt"></div>
+          </div>
+        </div>
+        <!-- Row 3: Monthly Bills + progress -->
+        <div class="space-row">
+          <img class="space-img" src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=200&q=80" alt="Bills" />
+          <div class="space-info">
+            <div class="sname">Monthly Bills</div>
+            <div class="prog-wrap">
+              <div class="prog-bar"><div class="prog-fill" style="width:57%"></div></div>
+              <span class="prog-pct">57%</span>
+            </div>
+            <div class="samt">£300.00</div>
+          </div>
+        </div>
+        <!-- Bottom nav -->
+        <div class="phone-nav">
+          <button class="pnav-item act"><i class="fa-solid fa-credit-card"></i><span>Payments</span></button>
+          <button class="pnav-item"><i class="fa-solid fa-chart-bar"></i><span>Spending</span></button>
+          <button class="pnav-item"><i class="fa-solid fa-house"></i><span>Home</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  </div>
+</section>
+
+<!-- ===================== FEATURES SECTION ===================== -->
+<section class="features-section">
+  <div class="features-inner">
+
+    <!-- Top: headline + nav arrows -->
+    <div class="features-top">
+      <h2 class="features-headline">Game-changing banking.<br>Life-changing habits.</h2>
+      <div class="feat-arrows">
+        <button class="arr-btn" aria-label="Previous"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="arr-btn" aria-label="Next"><i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- 5 feature cards -->
+    <div class="feat-cards">
+
+      <!-- Card 1: Family Banking -->
+      <div class="feat-card">
+        <div class="feat-card-tag">Family</div>
+        <div class="feat-card-title">One app. All your accounts.</div>
+        <button class="feat-card-link">Learn more</button>
+        <div class="feat-card-illus">
+          <!-- Colourful stacked cards illustration -->
+          <svg viewBox="0 0 180 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Card 3 (back) -->
+            <rect x="20" y="45" width="130" height="78" rx="12" fill="#F59E0B" transform="rotate(-8 20 45)"/>
+            <!-- Card 2 (mid) -->
+            <rect x="25" y="38" width="130" height="78" rx="12" fill="#8B5CF6" transform="rotate(-3 25 38)"/>
+            <!-- Card 1 (front) -->
+            <rect x="22" y="32" width="130" height="78" rx="12" fill="#2DD4C4"/>
+            <rect x="34" y="50" width="28" height="20" rx="4" fill="rgba(255,255,255,0.35)"/>
+            <rect x="34" y="82" width="60" height="7" rx="3" fill="rgba(255,255,255,0.5)"/>
+            <rect x="34" y="94" width="40" height="7" rx="3" fill="rgba(255,255,255,0.3)"/>
+            <!-- chip shine -->
+            <circle cx="152" cy="42" r="18" fill="rgba(255,255,255,0.08)"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 2: Spaces -->
+      <div class="feat-card">
+        <div class="feat-card-tag">Area</div>
+        <div class="feat-card-title">Organise money into budgets.</div>
+        <button class="feat-card-link">Learn more</button>
+        <div class="feat-card-illus">
+          <!-- Bill + piggy donut illustration -->
+          <svg viewBox="0 0 180 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Bill document -->
+            <rect x="18" y="20" width="80" height="100" rx="8" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="1.5"/>
+            <rect x="28" y="35" width="60" height="7" rx="3" fill="#D1D5DB"/>
+            <rect x="28" y="48" width="45" height="7" rx="3" fill="#D1D5DB"/>
+            <rect x="28" y="61" width="55" height="7" rx="3" fill="#D1D5DB"/>
+            <text x="30" y="30" font-size="11" font-weight="800" fill="#111" font-family="Inter,sans-serif">BILL</text>
+            <!-- Coin / donut purple shape -->
+            <circle cx="128" cy="80" r="42" fill="#C4B5FD"/>
+            <circle cx="128" cy="80" r="26" fill="#f5f3ef"/>
+            <circle cx="128" cy="80" r="16" fill="#8B5CF6"/>
+            <!-- sparkle -->
+            <circle cx="155" cy="52" r="7" fill="#FDE68A"/>
+            <circle cx="100" cy="110" r="5" fill="#FDE68A"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 3: Bills Manager -->
+      <div class="feat-card">
+        <div class="feat-card-tag">Manager</div>
+        <div class="feat-card-title">Keep money for bills separate.</div>
+        <button class="feat-card-link">Learn more</button>
+        <div class="feat-card-illus">
+          <!-- Safe / vault illustration -->
+          <svg viewBox="0 0 180 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- safe body -->
+            <rect x="30" y="18" width="108" height="96" rx="10" fill="#D1D5DB"/>
+            <rect x="36" y="24" width="96" height="84" rx="8" fill="#9CA3AF"/>
+            <!-- door -->
+            <rect x="44" y="30" width="80" height="72" rx="6" fill="#6B7280"/>
+            <!-- dial circle -->
+            <circle cx="84" cy="66" r="22" fill="#4B5563" stroke="#374151" stroke-width="2"/>
+            <circle cx="84" cy="66" r="14" fill="#374151"/>
+            <circle cx="84" cy="66" r="6" fill="#2DD4C4"/>
+            <!-- dial tick -->
+            <line x1="84" y1="48" x2="84" y2="54" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/>
+            <!-- handle -->
+            <rect x="118" y="58" width="10" height="18" rx="5" fill="#9CA3AF"/>
+            <!-- legs -->
+            <rect x="48" y="112" width="16" height="10" rx="3" fill="#9CA3AF"/>
+            <rect x="104" y="112" width="16" height="10" rx="3" fill="#9CA3AF"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 4: Spending Intelligence / AI -->
+      <div class="feat-card">
+        <div class="feat-card-tag">Artificial Intelligence</div>
+        <div class="feat-card-title">Ask AI about your spending habits.</div>
+        <button class="feat-card-link">Learn more</button>
+        <div class="feat-card-illus">
+          <!-- Big "AI" text with chat bubble -->
+          <svg viewBox="0 0 180 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="10" y="105" font-size="88" font-weight="900" fill="#2DD4C4" font-family="Inter,sans-serif" opacity="0.18">AI</text>
+            <text x="14" y="100" font-size="80" font-weight="900" fill="#111" font-family="Inter,sans-serif">AI</text>
+            <!-- chat bubble -->
+            <rect x="96" y="30" width="68" height="40" rx="12" fill="#2DD4C4"/>
+            <polygon points="100,70 112,70 106,82" fill="#2DD4C4"/>
+            <rect x="104" y="41" width="38" height="6" rx="3" fill="rgba(255,255,255,0.7)"/>
+            <rect x="104" y="53" width="28" height="6" rx="3" fill="rgba(255,255,255,0.45)"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Card 5: No Fees Abroad -->
+      <div class="feat-card">
+        <div class="feat-card-tag">Free Abroad</div>
+        <div class="feat-card-title">Spend like home.</div>
+        <button class="feat-card-link">Learn more</button>
+        <div class="feat-card-illus">
+          <!-- Piggy bank on teal mat -->
+          <svg viewBox="0 0 180 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- teal shadow mat -->
+            <ellipse cx="90" cy="118" rx="62" ry="10" fill="#2DD4C4" opacity="0.25"/>
+            <!-- piggy body -->
+            <ellipse cx="90" cy="82" rx="50" ry="40" fill="#FBBF24"/>
+            <!-- snout -->
+            <ellipse cx="134" cy="88" rx="16" ry="13" fill="#F59E0B"/>
+            <circle cx="130" cy="87" r="3.5" fill="#92400E"/>
+            <circle cx="138" cy="87" r="3.5" fill="#92400E"/>
+            <!-- ear -->
+            <ellipse cx="68" cy="50" rx="11" ry="14" fill="#FBBF24"/>
+            <ellipse cx="68" cy="51" rx="7" ry="9" fill="#FDE68A"/>
+            <!-- eye -->
+            <circle cx="110" cy="72" r="5" fill="#fff"/>
+            <circle cx="111" cy="72" r="3" fill="#111"/>
+            <!-- coin slot -->
+            <rect x="82" y="44" width="18" height="5" rx="2.5" fill="#92400E"/>
+            <!-- legs -->
+            <rect x="62" y="114" width="14" height="12" rx="6" fill="#F59E0B"/>
+            <rect x="82" y="116" width="14" height="10" rx="5" fill="#F59E0B"/>
+            <rect x="100" y="116" width="14" height="10" rx="5" fill="#F59E0B"/>
+            <rect x="118" y="114" width="14" height="12" rx="6" fill="#F59E0B"/>
+            <!-- tail curl -->
+            <path d="M42 78 Q28 68 32 56 Q36 44 46 50" stroke="#F59E0B" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <!-- shine -->
+            <ellipse cx="76" cy="66" rx="8" ry="5" fill="rgba(255,255,255,0.35)" transform="rotate(-20 76 66)"/>
+          </svg>
+        </div>
+      </div>
+
+    </div><!-- /feat-cards -->
+  </div>
+</section>
+
+
+
+<script>
+  // Hamburger
+  const hamburger = document.getElementById('hamburger');
+  const drawer = document.getElementById('mobile-drawer');
+  hamburger.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+    const ic = hamburger.querySelector('i');
+    ic.className = drawer.classList.contains('open') ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+    ic.style.fontSize = '20px';
+  });
+
+  // Feature cards arrow scroll
+  const featCards = document.querySelector('.feat-cards');
+  document.querySelectorAll('.arr-btn').forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      const w = featCards.querySelector('.feat-card').offsetWidth + 14;
+      featCards.scrollBy({ left: i === 0 ? -w : w, behavior: 'smooth' });
+    });
+  });
+
+  // ---- CARD SLIDER ----
+  const cardData = [
+    { name: 'Under 16s',  desc: 'A smart, safe way for under 16s to start their money journey.',      btn: 'Open for your child' },
+    { name: 'Joint',      desc: "Bills, budgets or just splitting brunch: it's better together.",      btn: 'Do life together' },
+    { name: 'Personal',   desc: 'Your everyday current account. Fast, flexible and fee-free.',        btn: 'Apply now' },
+    { name: 'Business',   desc: 'Designed for the way you work. Open in minutes.',             btn: 'Start your business' },
+    { name: 'Savings',    desc: 'Earn more on your money with our high-interest savings account.',     btn: 'Start saving' },
+  ];
+
+  const track = document.getElementById('sliderTrack');
+  const allCards = Array.from(track.querySelectorAll('.debit-card'));
+  const dotsContainer = document.getElementById('sliderDots');
+  const totalCards = allCards.length;
+  let current = 1; // start at "Joint" (index 1) to match screenshot
+
+  // Build dots
+  cardData.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === current ? ' active' : '');
+    d.setAttribute('aria-label', 'Go to card ' + (i+1));
+    d.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(d);
+  });
+
+  function updateInfo(idx) {
+    document.getElementById('cardName').textContent = cardData[idx].name;
+    document.getElementById('cardDesc').textContent = cardData[idx].desc;
+    document.getElementById('cardBtn').textContent  = cardData[idx].btn;
+  }
+
+  function applyClasses() {
+    allCards.forEach((card, i) => {
+      card.classList.remove('is-center', 'is-side', 'is-far');
+      const dist = Math.abs(i - current);
+      if (dist === 0) card.classList.add('is-center');
+      else if (dist === 1) card.classList.add('is-side');
+      else card.classList.add('is-far');
+    });
+    // dots
+    dotsContainer.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    updateInfo(current);
+    positionTrack();
+  }
+
+  function positionTrack() {
+    const wrap = document.querySelector('.slider-track-wrap');
+    const cardW = allCards[0].offsetWidth;
+    const gap = 18;
+    const wrapW = wrap.offsetWidth;
+    // center the current card
+    const offset = (wrapW / 2) - (current * (cardW + gap)) - (cardW / 2);
+    track.style.transform = `translateX(${offset}px)`;
+  }
+
+  function goTo(idx) {
+    current = Math.max(0, Math.min(totalCards - 1, idx));
+    applyClasses();
+  }
+
+  document.getElementById('cardPrev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('cardNext').addEventListener('click', () => goTo(current + 1));
+
+  // Click a card to select it
+  allCards.forEach((card, i) => card.addEventListener('click', () => goTo(i)));
+
+  // Touch/swipe support
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) goTo(current + (dx < 0 ? 1 : -1));
+  });
+
+  // Init
+  applyClasses();
+  window.addEventListener('resize', positionTrack);
+</script>
+
+<!-- ===================== SPACES SHOWCASE SECTION ===================== -->
+<style>
+  /* ---- Section wrapper ---- */
+  .showcase-section {
+    background: #2d1b3d;
+    padding: 60px 20px 56px;
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* ---- Showcase image (replaces phone mockup) ---- */
+  .showcase-image-wrap {
+    display: flex; justify-content: center; margin-bottom: 36px;
+  }
+  .showcase-image {
+    width: clamp(260px, 34vw, 420px);
+    aspect-ratio: 9 / 16;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+  }
+  .showcase-image img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.25s ease;
+  }
+
+  /* ---- Headline & tabs row ---- */
+  .showcase-headline {
+    font-size: clamp(24px, 3.5vw, 38px);
+    font-weight: 900; color: #fff; letter-spacing: -0.02em;
+    margin-bottom: 14px; line-height: 1.15;
+  }
+  .showcase-sub {
+    font-size: clamp(12px, 1.4vw, 15px);
+    color: rgba(255,255,255,0.65); line-height: 1.65;
+    max-width: 560px; margin: 0 auto 32px;
+  }
+
+  /* ---- Tab pills ---- */
+  .showcase-tabs {
+    display: inline-flex; align-items: center;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px; padding: 6px;
+    gap: 4px; flex-wrap: wrap; justify-content: center;
+  }
+  .sc-tab {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 20px; border-radius: 10px; cursor: pointer;
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-size: 11px; font-weight: 600; transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .sc-tab i { font-size: 16px; }
+  .sc-tab.active {
+    background: rgba(255,255,255,0.13);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .sc-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .sc-tab { padding: 8px 13px; font-size: 10px; }
+    .sc-tab i { font-size: 14px; }
+    .showcase-tabs { padding: 4px; gap: 2px; }
+    .showcase-section { padding: 44px 16px 44px; }
+  }
+</style>
+
+<section class="showcase-section">
+
+  <!-- Showcase image -->
+  <div class="showcase-image-wrap">
+    <div class="showcase-image">
+      <img id="showcaseImg" src="hh.png" alt="Area" />
+    </div>
+  </div>
+
+  <!-- Headline -->
+  <h2 class="showcase-headline" id="showcaseHeadline">Plans.</h2>
+  <p class="showcase-sub" id="showcaseSub">Set aside money with Spaces within the app, separated from your balance. Good for tracking goals, and great for keeping your expenses neatly sorted.</p>
+
+  <!-- Tab pills -->
+  <div class="showcase-tabs">
+    <button class="sc-tab active" data-tab="spaces">
+      <i class="fa-solid fa-grid-2"></i>Area
+    </button>
+    <button class="sc-tab" data-tab="virtual">
+      <i class="fa-solid fa-id-card"></i>Online
+    </button>
+    <button class="sc-tab" data-tab="bills">
+      <i class="fa-solid fa-file-invoice"></i>Manager
+    </button>
+    <button class="sc-tab" data-tab="ai">
+      <i class="fa-solid fa-robot"></i>AI Intelligence
+    </button>
+  </div>
+
+</section>
+
+<!-- ===================== SAVINGS ACCOUNTS SECTION ===================== -->
+<section class="savings-section">
+  <div class="savings-inner">
+
+    <div class="savings-eyebrow">
+      <i class="fa-solid fa-seedling"></i>
+      <span>Watch your money grow</span>
+    </div>
+
+    <h2 class="savings-headline">Our savings accounts.</h2>
+
+    <div class="savings-cards">
+
+      <!-- Card 1: Fixed Saver -->
+      <div class="savings-card">
+        <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=700&q=80" alt="Fixed Saver" />
+        <div class="savings-card-content">
+          <div class="savings-card-title">Fixed Saver</div>
+          <p class="savings-card-desc">The top earner, good interest.</p>
+          <a href="#" class="savings-card-btn">Find out more</a>
+        </div>
+      </div>
+
+      <!-- Card 2: Easy Saver -->
+      <div class="savings-card">
+        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700&q=80" alt="Easy Saver" />
+        <div class="savings-card-content">
+          <div class="savings-card-title">Easy Saver</div>
+          <p class="savings-card-desc">Withdraw anytime, (variable) interest.</p>
+          <a href="#" class="savings-card-btn">Find out more</a>
+        </div>
+      </div>
+
+      <!-- Card 3: Flexible Cash ISA -->
+      <div class="savings-card">
+        <img src="https://images.unsplash.com/photo-1598128558393-70ff21433be0?w=700&q=80" alt="Flexible Cash ISA" />
+        <div class="savings-card-content">
+          <div class="savings-card-title">Flexible</div>
+          <p class="savings-card-desc">Free(variable) interest.</p>
+          <a href="#" class="savings-card-btn">Find out more</a>
+        </div>
+      </div>
+
+    </div><!-- /savings-cards -->
+
+
+  </div>
+</section>
+
+<!-- ===================== FUTURE-FIT BANKING SECTION ===================== -->
+<section class="futurefit-section">
+  <div class="futurefit-inner">
+
+    <div class="futurefit-image-wrap">
+      <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=85" alt="Future-fit banking" />
+      <div class="futurefit-overlay">
+        <h2 class="futurefit-title">Future-fit banking.</h2>
+        <p class="futurefit-desc">Industry-leading security, including face and fingerprint recognition, and groundbreaking new tools powered by AI.</p>
+      </div>
+    </div>
+
+    <div class="futurefit-cols">
+
+      <!-- Col 1: Money protected -->
+      <div class="ff-col">
+        <div class="ff-col-icon green"><i class="fa-solid fa-lock"></i></div>
+        <div class="ff-col-title">Your money is protected.</div>
+        <p class="ff-col-desc">Eligible deposits are protected.</p>
+      </div>
+
+      <!-- Col 2: 24/7 support -->
+      <div class="ff-col">
+        <div class="ff-col-icon pink"><i class="fa-solid fa-comments"></i></div>
+        <div class="ff-col-title">24/7 support from humans.</div>
+        <p class="ff-col-desc">Whatever the time, whatever the day. Start a live chat in seconds or give us a call – we're ready to help.</p>
+      </div>
+
+      <!-- Col 3: Scam Intelligence -->
+      <div class="ff-col">
+        <div class="ff-col-icon yellow"><i class="fa-solid fa-shield"></i></div>
+        <div class="ff-col-title">Scam Intelligence.</div>
+        <p class="ff-col-desc">Not sure if something's a scam? Upload a screenshot and our AI will flag concerns, such as generic photos or low prices.</p>
+      </div>
+
+    </div><!-- /futurefit-cols -->
+
+  </div>
+</section>
+
+<!-- ===================== CLOSING CTA SECTION ===================== -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-card">
+      <div class="cta-logo"><span>S</span></div>
+      <h2 class="cta-headline">Join the millions of people today.</h2>
+      <p class="cta-sub">Award-winning accounts. No monthly fees. Industry-leading security features.</p>
+      <a href="apply.html" class="cta-btn">Apply now</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER SECTION ===================== -->
+<footer class="site-footer">
+  <div class="footer-inner">
+
+    <div class="footer-wordmark">QUANTUM DIGITAL BANK</div>
+
+    <div class="footer-cols">
+
+      <!-- Company -->
+      <div class="footer-col">
+        <div class="footer-col-title">Company</div>
+        <ul>
+          <li><a href="#">About Quantum</a></li>
+          <li><a href="#">Annual Report &amp; Pillar 3</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Charity Partnerships</a></li>
+          <li><a href="#">Ethics statement</a></li>
+          <li><a href="#">Gender equality</a></li>
+          <li><a href="#">If Not Now, When? Initiative</a></li>
+          <li><a href="#">Internal Audit Charter</a></li>
+          <li><a href="#">Newsroom</a></li>
+          <li><a href="#">Refer a friend scheme</a></li>
+          <li><a href="#">Tax strategy</a></li>
+          <li><a href="#">Women in Finance Charter</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal -->
+      <div class="footer-col">
+        <div class="footer-col-title">Legal</div>
+        <ul>
+          <li><a href="#">All legal documents</a></li>
+          <li><a href="#">Protection</a></li>
+          <li><a href="#">Privacy Notice</a></li>
+          <li><a href="#">Modern Slavery Statement</a></li>
+          <li><a href="#">Carbon Reduction Plan</a></li>
+          <li><a href="#">Manage cookies</a></li>
+        </ul>
+      </div>
+
+      <!-- Customer support -->
+      <div class="footer-col">
+        <div class="footer-col-title">Customer support</div>
+        <ul>
+          <li><a href="#">Cost of living</a></li>
+          <li><a href="#">Fraud and scams</a></li>
+          <li><a href="#">Banking glossary</a></li>
+          <li><a href="#">Customer support hub</a></li>
+          <li><a href="#">Fees, rates and charges</a></li>
+          <li><a href="#">Help centre</a></li>
+          <li><a href="#">How to contact us</a></li>
+          <li><a href="#">Responsible Disclosure</a></li>
+          <li><a href="#">Mobile banking security</a></li>
+          <li><a href="#">Service status <span class="footer-status-dot"></span></a></li>
+          <li><a href="#">Accessibility statement</a></li>
+          <li><a href="#">Social media community guidelines</a></li>
+          <li><a href="#">Money worries</a></li>
+        </ul>
+      </div>
+
+      <!-- Partner with us -->
+      <div class="footer-col">
+        <div class="footer-col-title">Partner with us</div>
+        <ul>
+          <li><a href="#">Accountant referral programme</a></li>
+          <li><a href="#">B2B Banking Services</a></li>
+          <li><a href="#">Developers</a></li>
+          <li><a href="#">Engine by Quantum</a></li>
+        </ul>
+      </div>
+
+    </div><!-- /footer-cols -->
+
+    <!-- Connect with us -->
+    <div class="footer-connect">
+      <div class="footer-connect-title">Connect with us</div>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" aria-label="Threads"><i class="fa-brands fa-threads"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="#" aria-label="Flipboard"><i class="fa-brands fa-flipboard"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="#" aria-label="Pinterest"><i class="fa-brands fa-pinterest-p"></i></a>
+        <a href="#" aria-label="RSS"><i class="fa-solid fa-rss"></i></a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+  // ---- SHOWCASE TAB SWITCHER ----
+  const showcaseContent = {
+    spaces:  {
+      headline: 'Budgets and bucket lists.',
+      sub: 'Set aside money with Spaces within the app, separated from your balance. Good for tracking goals, and great for keeping your expenses neatly sorted.',
+      img: 'https://uploads-ssl.webflow.com/617ad055dd582e35f91c3f5d/61bd337d06ad610fcbd9594d_What%20is%20Phone%20Banking%3F.png'
+    },
+    virtual: {
+      headline: 'Pay safer online.',
+      sub: 'Create virtual cards for specific purposes — shopping, subscriptions and more. Lock, freeze or delete them any time without touching your main card.',
+      img: 'https://images.unsplash.com/photo-1726137569938-f080c8d9904e?w=600&q=80'
+    },
+    bills:   {
+      headline: 'Never miss a bill again.',
+      sub: 'Bills Manager keeps all your regular payments in one place. See what\'s upcoming, what\'s been paid, and stay on top of your outgoings effortlessly.',
+      img: 'https://www.hlb.com.my/content/dam/hlb/my/images/Help-and-Support/General-FAQ/interactive-phone-banking/interactive-phone-banking-banner.png'
+    },
+    ai:      {
+      headline: 'Ask AI about your money.',
+      sub: 'Spending Intelligence gives you a personal AI that understands your habits, answers your questions, and helps you make smarter financial decisions.',
+      img: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=80'
+    },
+  };
+
+</script>
+
+<!-- ===================== WHATSAPP FLOATING BUTTON ===================== -->
+<a href="https://wa.me/19713496586" target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Chat on WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<script>
+  document.querySelectorAll('.sc-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const key = tab.dataset.tab;
+      // update tabs
+      document.querySelectorAll('.sc-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      // update image
+      const img = document.getElementById('showcaseImg');
+      img.style.opacity = 0;
+      setTimeout(() => {
+        img.src = showcaseContent[key].img;
+        img.alt = key;
+        img.style.opacity = 1;
+      }, 150);
+      // update text
+      document.getElementById('showcaseHeadline').textContent = showcaseContent[key].headline;
+      document.getElementById('showcaseSub').textContent = showcaseContent[key].sub;
+    });
+  });
+</script>
+</body>
+</html>

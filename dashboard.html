@@ -1,0 +1,2928 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Digital — Dashboard</title>
+
+<style>
+/* ============ THEME TOKENS ============ */
+:root {
+  --bg: #f5ede4;
+  --bg2: #ede3d8;
+  --surface: #ffffff;
+  --surface2: #faf7f4;
+  --border: #e4d9ce;
+  --ink: #1c1524;
+  --ink2: #6b5e7a;
+  --ink3: #9e91ad;
+  --teal: #28e0c5;
+  --teal-d: #11b89f;
+  --teal-bg: #e6fbf7;
+  --blue: #1559ff;
+  --blue-bg: #eaf1ff;
+  --gold: #d8a43a;
+  --gold-bg: #fdf4e0;
+  --danger: #e5484d;
+  --danger-bg: #fdeceb;
+  --success: #12a454;
+  --success-bg: #e6f6ec;
+  --navy: #1d1a36;
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 4px 24px -8px rgba(28,21,36,0.12);
+  --shadow-lg: 0 20px 60px -20px rgba(28,21,36,0.2);
+  --transition: 0.2s ease;
+}
+
+[data-theme="dark"] {
+  --bg: #0f0d1a;
+  --bg2: #181528;
+  --surface: #1e1b30;
+  --surface2: #252240;
+  --border: #2e2a45;
+  --ink: #f0eaf8;
+  --ink2: #b0a8c8;
+  --ink3: #6b6288;
+  --teal-bg: #0d3330;
+  --blue-bg: #0e1f4a;
+  --gold-bg: #2e2310;
+  --danger-bg: #2e1012;
+  --success-bg: #0c2318;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* ============ LAYOUT ============ */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  transition: transform var(--transition);
+}
+
+[data-theme="dark"] .sidebar { background: #0a0817; border-right: 1px solid var(--border); }
+
+.sidebar-brand {
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand h1 {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--teal);
+}
+
+.sidebar-brand p {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.3);
+  padding: 14px 22px 6px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 22px;
+  color: rgba(255,255,255,0.55);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all var(--transition);
+  position: relative;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+}
+
+.nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.06); }
+
+.nav-item.active {
+  color: #fff;
+  background: rgba(40, 224, 197, 0.15);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: var(--teal);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-item svg { width: 18px; height: 18px; flex: 0 0 auto; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--teal);
+  color: var(--navy);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+.sidebar-footer {
+  padding: 16px 22px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal-d), var(--blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  flex: 0 0 auto;
+}
+
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-info p { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-user-info span { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* ============ MAIN ============ */
+.main {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============ TOPBAR ============ */
+.topbar {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: background var(--transition);
+}
+
+.topbar-left { flex: 1; }
+.topbar-left h2 { font-size: 17px; font-weight: 800; }
+.topbar-left p { font-size: 12.5px; color: var(--ink2); margin-top: 1px; }
+
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+.topbar-btn {
+  width: 38px; height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--ink2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.topbar-btn:hover { border-color: var(--teal-d); color: var(--teal-d); }
+.topbar-btn svg { width: 17px; height: 17px; }
+
+.topbar-lang-select {
+  height: 38px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--ink2);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.topbar-lang-select:hover { border-color: var(--teal-d); color: var(--teal-d); }
+
+.notif-dot {
+  width: 7px; height: 7px;
+  background: var(--danger);
+  border-radius: 50%;
+  position: absolute;
+  top: 6px; right: 6px;
+  border: 2px solid var(--surface);
+}
+
+.menu-toggle {
+  display: none;
+  width: 38px; height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--ink);
+  align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.menu-toggle svg { width: 20px; height: 20px; }
+
+/* ============ PAGE CONTENT ============ */
+.content {
+  flex: 1;
+  padding: 28px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* Pages */
+.page-view { display: none; }
+.page-view.active { display: block; }
+
+/* ============ CARDS ============ */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 22px 0;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.card-action {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--teal-d);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.card-action:hover { text-decoration: underline; }
+
+/* ============ BALANCE CARDS ============ */
+.balance-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.balance-main {
+  background: var(--navy);
+  border-radius: var(--radius);
+  padding: 26px 26px 22px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+
+[data-theme="dark"] .balance-main { background: #13102a; border-color: var(--border); }
+
+.balance-main::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(40,224,197,0.18) 0%, transparent 70%);
+}
+
+.balance-main::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: 60px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(21,89,255,0.15) 0%, transparent 70%);
+}
+
+.bal-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); margin-bottom: 8px; letter-spacing: 0.04em; text-transform: uppercase; }
+.bal-amount { font-size: clamp(26px, 4vw, 36px); font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+.bal-currency { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.bal-acct { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 12px; display: flex; align-items: center; gap: 6px; }
+.bal-acct strong { color: rgba(255,255,255,0.7); letter-spacing: 0.06em; }
+
+.copy-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--teal); padding: 2px; display: flex;
+}
+.copy-btn svg { width: 13px; height: 13px; }
+.copy-btn:hover { color: var(--teal-d); }
+
+.bal-stat {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 22px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bs-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+}
+.bs-icon svg { width: 18px; height: 18px; }
+.bs-icon.teal { background: var(--teal-bg); color: var(--teal-d); }
+.bs-icon.gold { background: var(--gold-bg); color: var(--gold); }
+
+.bs-label { font-size: 11.5px; font-weight: 700; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.04em; }
+.bs-val { font-size: 22px; font-weight: 900; color: var(--ink); letter-spacing: -0.01em; }
+.bs-sub { font-size: 11.5px; color: var(--ink3); }
+
+/* ============ QUICK ACTIONS ============ */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+  max-width: 480px;
+}
+
+.qa-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: center;
+}
+
+.qa-btn:hover {
+  border-color: var(--teal-d);
+  box-shadow: 0 6px 20px -8px rgba(17, 184, 159, 0.3);
+  transform: translateY(-2px);
+}
+
+.qa-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.qa-icon svg { width: 20px; height: 20px; }
+.qa-icon.teal { background: var(--teal-bg); color: var(--teal-d); }
+.qa-icon.blue { background: var(--blue-bg); color: var(--blue); }
+.qa-icon.gold { background: var(--gold-bg); color: var(--gold); }
+.qa-icon.pink { background: #fde8f5; color: #c026a9; }
+.qa-icon.purple { background: #ede8fd; color: #7c3aed; }
+.qa-label { font-size: 12px; font-weight: 700; color: var(--ink); }
+
+/* ============ TRANSACTIONS ============ */
+.txn-list { padding: 0 22px 18px; }
+
+.txn-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.txn-item:last-child { border-bottom: none; }
+.txn-item:hover { opacity: 0.8; }
+
+.txn-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+}
+.txn-icon svg { width: 18px; height: 18px; }
+.txn-icon.debit { background: var(--danger-bg); color: var(--danger); }
+.txn-icon.credit { background: var(--success-bg); color: var(--success); }
+.txn-icon.pending { background: var(--gold-bg); color: var(--gold); }
+
+.txn-info { flex: 1; min-width: 0; }
+.txn-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.txn-meta { font-size: 11.5px; color: var(--ink3); margin-top: 2px; }
+
+.txn-amount { text-align: right; }
+.txn-amount .amount { font-size: 14px; font-weight: 800; }
+.txn-amount .amount.debit { color: var(--danger); }
+.txn-amount .amount.credit { color: var(--success); }
+.txn-amount .status { font-size: 11px; color: var(--ink3); margin-top: 2px; font-weight: 600; }
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ink3);
+}
+.empty-state svg { width: 40px; height: 40px; opacity: 0.4; margin-bottom: 10px; }
+.empty-state p { font-size: 13.5px; font-weight: 600; }
+
+/* ============ GRID LAYOUTS ============ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+
+/* ============ MINI CHART ============ */
+.sparkline { padding: 0 22px 20px; }
+.sparkline svg { width: 100%; height: 60px; overflow: visible; }
+
+/* ============ MODAL OVERLAY ============ */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 13, 26, 0.7);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.overlay.show { display: flex; }
+
+@media (min-width: 600px) {
+  .overlay { align-items: center; }
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 28px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.25s ease;
+  position: relative;
+}
+
+@media (min-width: 600px) {
+  .modal { border-radius: var(--radius); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+}
+
+.modal-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+}
+.modal-icon svg { width: 20px; height: 20px; }
+.modal-icon.teal { background: var(--teal-bg); color: var(--teal-d); }
+.modal-icon.blue { background: var(--blue-bg); color: var(--blue); }
+.modal-icon.gold { background: var(--gold-bg); color: var(--gold); }
+.modal-icon.pink { background: #fde8f5; color: #c026a9; }
+
+.modal-title { font-size: 18px; font-weight: 800; }
+.modal-sub { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+
+.modal-close {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--ink2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.modal-close svg { width: 14px; height: 14px; }
+
+/* ============ FORM ELEMENTS ============ */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 7px; color: var(--ink); }
+
+.input-wrap { position: relative; }
+.field-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink3); pointer-events: none; }
+.field-icon svg { width: 15px; height: 15px; }
+
+input[type="text"], input[type="email"], input[type="number"], input[type="tel"], select, textarea {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px 0 38px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  transition: all var(--transition);
+  appearance: none;
+}
+
+textarea { height: auto; padding: 12px 14px 12px 38px; resize: vertical; min-height: 80px; }
+select { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b5e7a' stroke-width='2'><polyline points='6 9 12 15 18 9'></polyline></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 15px; padding-right: 36px; }
+
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--teal-d); box-shadow: 0 0 0 3px var(--teal-bg); }
+
+.form-group.has-error input, .form-group.has-error select { border-color: var(--danger); background: var(--danger-bg); }
+.error-msg { display: none; font-size: 12px; color: var(--danger); margin-top: 5px; font-weight: 600; }
+.form-group.has-error .error-msg { display: block; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ============ BUTTONS ============ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 46px; padding: 0 22px;
+  border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 700; font-family: inherit;
+  cursor: pointer; border: none;
+  transition: all var(--transition);
+}
+
+.btn svg { width: 15px; height: 15px; }
+.btn-primary { background: var(--teal); color: var(--navy); box-shadow: 0 8px 20px -8px rgba(17,184,159,0.5); }
+.btn-primary:hover { background: var(--teal-d); color: #fff; transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--ink); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+.btn-group { display: flex; gap: 10px; margin-top: 6px; }
+.btn-group .btn { flex: 1; }
+
+/* ============ OPTION CARDS ============ */
+.option-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.option-card-input { position: absolute; opacity: 0; width: 0; height: 0; }
+.option-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 10px; text-align: center;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 12px; cursor: pointer; transition: all var(--transition);
+}
+.option-card svg { width: 22px; height: 22px; color: var(--ink2); }
+.option-card .oc-label { font-size: 13px; font-weight: 700; color: var(--ink); }
+.option-card .oc-sub { font-size: 11px; color: var(--ink3); }
+.option-card-input:checked + .option-card { background: var(--blue-bg); border-color: var(--blue); }
+.option-card-input:checked + .option-card svg { color: var(--blue); }
+.option-card-input:checked + .option-card .oc-label { color: var(--blue); }
+
+/* ============ ALERT BANNER ============ */
+.alert {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; margin-bottom: 18px;
+}
+.alert svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.alert-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(18,164,84,0.3); }
+.alert-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(229,72,77,0.3); }
+.alert-info { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(21,89,255,0.2); }
+.alert-warning { background: var(--gold-bg); color: var(--gold); border: 1px solid rgba(216,164,58,0.3); }
+
+/* ============ PROFILE ============ */
+.profile-header {
+  display: flex; align-items: center; gap: 20px;
+  padding: 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.profile-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal-d), var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 900; color: #fff;
+  flex: 0 0 auto;
+}
+
+.profile-info h3 { font-size: 20px; font-weight: 800; }
+.profile-info p { font-size: 13px; color: var(--ink2); margin-top: 3px; }
+
+.profile-acct {
+  margin-top: 8px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px;
+}
+.acct-tag {
+  background: var(--teal-bg); color: var(--teal-d);
+  border: 1px solid rgba(17,184,159,0.25);
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.05em;
+}
+
+.profile-fields { padding: 22px 28px 28px; }
+
+.pf-section-title {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink3);
+  margin: 20px 0 14px;
+}
+.pf-section-title:first-child { margin-top: 0; }
+
+.pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.pf-field {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+}
+.pf-field label { font-size: 11px; font-weight: 700; color: var(--ink3); display: block; margin-bottom: 3px; }
+.pf-field p { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+.pf-field.editable { border-color: var(--teal-d); background: var(--teal-bg); }
+.pf-field.editable label { color: var(--teal-d); }
+
+.edit-profile-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: none; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 9px 16px;
+  font-size: 13px; font-weight: 700; color: var(--ink);
+  cursor: pointer; transition: all var(--transition);
+  margin-left: auto;
+}
+.edit-profile-btn:hover { border-color: var(--teal-d); color: var(--teal-d); }
+.edit-profile-btn svg { width: 14px; height: 14px; }
+
+/* ============ SETTINGS ============ */
+.settings-section { margin-bottom: 8px; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 22px; border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-label { display: flex; align-items: center; gap: 12px; }
+.settings-label-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.settings-label-icon svg { width: 17px; height: 17px; }
+.settings-label-icon.teal { background: var(--teal-bg); color: var(--teal-d); }
+.settings-label-icon.blue { background: var(--blue-bg); color: var(--blue); }
+.settings-label-icon.gold { background: var(--gold-bg); color: var(--gold); }
+.settings-label-icon.red { background: var(--danger-bg); color: var(--danger); }
+.settings-label-icon.purple { background: #ede8fd; color: #7c3aed; }
+.settings-label h4 { font-size: 14px; font-weight: 700; }
+.settings-label p { font-size: 12px; color: var(--ink2); margin-top: 1px; }
+
+/* Toggle Switch */
+.toggle-switch { position: relative; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; cursor: pointer; inset: 0;
+  background: var(--border); border-radius: 12px;
+  transition: background var(--transition);
+}
+.toggle-track::before {
+  content: '';
+  position: absolute; width: 18px; height: 18px;
+  left: 3px; top: 3px;
+  background: #fff; border-radius: 50%;
+  transition: transform var(--transition);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .toggle-track { background: var(--teal-d); }
+.toggle-switch input:checked + .toggle-track::before { transform: translateX(20px); }
+
+/* ============ TRANSFER PAGES ============ */
+.transfer-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+
+.tt-card {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 18px 14px;
+  cursor: pointer; transition: all var(--transition);
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.tt-card:hover { border-color: var(--teal-d); }
+.tt-card.selected { background: var(--blue-bg); border-color: var(--blue); }
+.tt-card svg { width: 24px; height: 24px; color: var(--ink2); }
+.tt-card.selected svg { color: var(--blue); }
+.tt-card h4 { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.tt-card.selected h4 { color: var(--blue); }
+.tt-card p { font-size: 11.5px; color: var(--ink3); }
+
+/* ============ NOTIFICATION PANEL ============ */
+.notif-panel {
+  position: fixed;
+  top: var(--header-h); right: 0;
+  width: 340px; max-height: calc(100vh - var(--header-h));
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 150;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-lg);
+}
+.notif-panel.open { transform: translateX(0); }
+.notif-panel-header { padding: 18px 18px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.notif-panel-header h3 { font-size: 15px; font-weight: 800; }
+.notif-item { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; cursor: pointer; }
+.notif-item:hover { background: var(--surface2); }
+.notif-dot-badge { width: 8px; height: 8px; background: var(--teal-d); border-radius: 50%; margin-top: 5px; flex: 0 0 auto; }
+.notif-item p { font-size: 13px; font-weight: 600; }
+.notif-item span { font-size: 11px; color: var(--ink3); margin-top: 3px; display: block; }
+
+/* ============ SEND SECTION ============ */
+.send-page .section-title {
+  font-size: 13px; font-weight: 800; color: var(--ink2);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+/* ============ STATUS BADGE ============ */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-warning { background: var(--gold-bg); color: var(--gold); }
+.badge-info { background: var(--blue-bg); color: var(--blue); }
+
+/* ============ ACCOUNT BLOCKED STATE ============ */
+.blocked-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(10,8,20,0.9);
+  z-index: 9999;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 30px;
+  backdrop-filter: blur(8px);
+}
+.blocked-overlay.show { display: flex; }
+.blocked-box { max-width: 400px; }
+.blocked-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--danger-bg); color: var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.blocked-icon svg { width: 32px; height: 32px; }
+.blocked-box h2 { color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+.blocked-box p { color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
+
+/* ============ CONFETTI / SUCCESS ANIM ============ */
+.success-anim {
+  text-align: center; padding: 20px 0 10px;
+}
+.success-anim .s-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--success-bg); color: var(--success);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+  animation: popIn 0.4s ease;
+}
+.success-anim .s-icon svg { width: 30px; height: 30px; }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.success-anim h3 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.success-anim p { font-size: 13.5px; color: var(--ink2); }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1024px) {
+  .balance-grid { grid-template-columns: 1fr 1fr; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .quick-actions { grid-template-columns: repeat(3, 1fr); }
+  .pf-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  :root { --sidebar-w: 260px; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+  .main { margin-left: 0; }
+  .menu-toggle { display: flex; }
+  .balance-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+  .content { padding: 18px; }
+  .notif-panel { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .quick-actions { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .qa-btn { padding: 14px 6px 12px; }
+  .qa-icon { width: 38px; height: 38px; }
+  .form-row { grid-template-columns: 1fr; }
+  .transfer-type-grid { grid-template-columns: 1fr 1fr; }
+  .option-cards { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============ EXTRA RESPONSIVE POLISH ============ */
+/* Everything in this block only ADDS to / extends the responsive rules
+   above. Nothing already defined elsewhere is changed or removed —
+   this purely fills in gaps so the dashboard adapts smoothly on every
+   screen size, from large desktops down to the smallest phones. */
+
+html, body { overflow-x: hidden; max-width: 100vw; }
+img, svg, canvas { max-width: 100%; }
+
+/* Keep the page content from hugging the left edge on ultra-wide monitors */
+.content { margin: 0 auto; }
+
+/* Let elements that hold a title + control (history filter, recent txns
+   "view all", profile edit button, etc.) wrap gracefully instead of
+   squeezing or overflowing on medium/narrow screens */
+.card-header { flex-wrap: wrap; row-gap: 8px; }
+.profile-header { flex-wrap: wrap; }
+.settings-row { flex-wrap: wrap; gap: 10px; }
+
+/* Truncate long topbar titles instead of letting them push icons off-screen */
+.topbar-left { min-width: 0; }
+.topbar-left h2, .topbar-left p {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---- Large tablets / small laptops ---- */
+@media (max-width: 1100px) {
+  .content { max-width: 100%; }
+}
+
+/* ---- Tablets / large phones (landscape) ---- */
+@media (max-width: 860px) {
+  .balance-main { padding: 22px 20px 18px; }
+  .profile-header { padding: 24px; gap: 16px; }
+}
+
+/* ---- Large phones ---- */
+@media (max-width: 640px) {
+  .topbar { padding: 0 16px; gap: 10px; }
+  .topbar-left h2 { font-size: 15px; }
+  .topbar-left p { font-size: 11.5px; }
+  .topbar-lang-select { padding: 0 6px; font-size: 11.5px; }
+  .content { padding: 16px; }
+  .balance-main { padding: 20px 18px 18px; }
+  .bal-stat { padding: 16px; }
+  .profile-header { padding: 20px; gap: 14px; }
+  .profile-avatar { width: 60px; height: 60px; font-size: 22px; }
+  .modal { padding: 20px; }
+  .modal-close { top: 14px; right: 14px; }
+  .profile-acct { flex-wrap: wrap; }
+}
+
+/* ---- Phones ---- */
+@media (max-width: 480px) {
+  .topbar { padding: 0 12px; gap: 8px; }
+  .topbar-actions { gap: 6px; }
+  .topbar-btn, .menu-toggle { width: 34px; height: 34px; }
+  .topbar-lang-select { height: 34px; padding: 0 4px; font-size: 11px; }
+  .bal-amount { font-size: clamp(22px, 7vw, 30px); }
+  .qa-label { font-size: 11px; }
+  .option-cards { grid-template-columns: 1fr; }
+  .btn-group { flex-direction: column; }
+  .btn-group .btn { width: 100%; }
+  /* Prevent iOS Safari from auto-zooming the page when a field is focused */
+  input[type="text"], input[type="email"], input[type="number"],
+  input[type="tel"], select, textarea { font-size: 16px; }
+}
+
+/* ---- Small phones ---- */
+@media (max-width: 380px) {
+  .sidebar-brand h1 { font-size: 15px; }
+  .balance-main, .bal-stat { padding: 14px; }
+  .qa-btn { padding: 12px 4px 10px; }
+  .transfer-type-grid { grid-template-columns: 1fr; }
+  .card-header { padding: 16px 16px 0; }
+  .txn-list { padding: 0 16px 14px; }
+  .sparkline { padding: 0 16px 16px; }
+  .profile-fields { padding: 16px; }
+  .pf-field { padding: 10px 12px; }
+  .modal { padding: 16px; }
+  .modal-icon { width: 36px; height: 36px; }
+}
+
+/* ---- Very narrow devices ---- */
+@media (max-width: 330px) {
+  .quick-actions { gap: 6px; }
+  .bal-label { font-size: 10.5px; }
+  .bs-val { font-size: 18px; }
+  .topbar-left p { font-size: 10px; }
+  .sidebar-brand h1 { font-size: 14px; }
+}
+
+/* ---- Short / landscape phone screens ---- */
+@media (max-height: 480px) and (orientation: landscape) {
+  .modal { max-height: 94vh; }
+  .sidebar-brand { padding: 14px 22px 10px; }
+  .sidebar-footer { padding: 10px 22px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Spinner */
+.spinner { width: 16px; height: 16px; border: 2.5px solid rgba(0,0,0,0.15); border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* SVG icons */
+svg.icon { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+</style>
+</head>
+<body>
+
+<!-- Icon Sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="ic-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7"/><path d="M9 22V12h6v10"/><path d="M5 10v11h14V10"/></symbol>
+    <symbol id="ic-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+    <symbol id="ic-deposit" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="m6 14 6 6 6-6"/><rect x="2" y="2" width="20" height="4" rx="1"/></symbol>
+    <symbol id="ic-history" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="ic-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="ic-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="ic-credit-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ic-check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+    <symbol id="ic-arrow-up" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></symbol>
+    <symbol id="ic-arrow-down" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></symbol>
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="ic-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.23-3.48"/></symbol>
+    <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="ic-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="ic-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+    <symbol id="ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="ic-bank" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7"/><path d="M5 10v9"/><path d="M19 10v9"/><path d="M9 10v9"/><path d="M15 10v9"/><path d="M3 21h18"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></symbol>
+    <symbol id="ic-wifi" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></symbol>
+    <symbol id="ic-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.66 1h3a2 2 0 0 1 2 1.72c.13.96.32 1.9.57 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.14a2 2 0 0 1 2.11-.45c.91.25 1.85.44 2.81.57A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="ic-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 9 6 9-6"/></symbol>
+    <symbol id="ic-map-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="ic-dollar" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+    <symbol id="ic-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="ic-trending-up" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+    <symbol id="ic-trending-down" viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></symbol>
+  </defs>
+</svg>
+
+<!-- Blocked Overlay (admin can trigger) -->
+<div class="blocked-overlay" id="blockedOverlay">
+  <div class="blocked-box">
+    <div class="blocked-icon"><svg class="icon"><use href="#ic-shield"/></svg></div>
+    <h2>Account Suspended</h2>
+    <p>Your account has been temporarily suspended. Please contact support at <strong style="color:var(--teal)">support@quantumdigital.com</strong> or call +1 800-QD-BANK for assistance.</p>
+    <button class="btn btn-outline" onclick="signOut()" style="color:#fff;border-color:rgba(255,255,255,0.3)">
+      <svg class="icon"><use href="#ic-log-out"/></svg> Sign out
+    </button>
+  </div>
+</div>
+
+<!-- Sidebar Backdrop -->
+<div id="sidebarBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99" onclick="closeSidebar()"></div>
+
+<!-- Notification Panel -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-header">
+    <h3>Notifications</h3>
+    <button class="modal-close" onclick="toggleNotifPanel()"><svg class="icon"><use href="#ic-x"/></svg></button>
+  </div>
+  <div id="notifList">
+    <div class="notif-item">
+      <div class="notif-dot-badge"></div>
+      <div><p>Account created successfully</p><span>Just now</span></div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-dot-badge"></div>
+      <div><p>Welcome to Quantum Digital Banking</p><span>Just now</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1>QUANTUM DIGITAL</h1>
+      <p data-i18n="sidebar.tagline">Digital Banking Platform</p>
+    </div>
+    <div class="sidebar-nav">
+      <p class="nav-section-label" data-i18n="sidebar.main">Main</p>
+      <button class="nav-item active" onclick="navigate('home')">
+        <svg class="icon"><use href="#ic-home"/></svg> <span data-i18n="sidebar.overview">Overview</span>
+      </button>
+      <button class="nav-item" onclick="navigate('send')">
+        <svg class="icon"><use href="#ic-send"/></svg> <span data-i18n="sidebar.send">Send Money</span>
+      </button>
+      <button class="nav-item" onclick="navigate('deposit')">
+        <svg class="icon"><use href="#ic-deposit"/></svg> <span data-i18n="sidebar.deposit">Deposit Funds</span>
+      </button>
+      <button class="nav-item" onclick="navigate('history')">
+        <svg class="icon"><use href="#ic-history"/></svg> <span data-i18n="sidebar.transactions">Transactions</span>
+      </button>
+      <p class="nav-section-label" data-i18n="sidebar.account">Account</p>
+      <button class="nav-item" onclick="navigate('profile')">
+        <svg class="icon"><use href="#ic-user"/></svg> <span data-i18n="sidebar.profile">Profile</span>
+      </button>
+      <button class="nav-item" onclick="navigate('settings')">
+        <svg class="icon"><use href="#ic-settings"/></svg> <span data-i18n="sidebar.settings">Settings</span>
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">--</div>
+        <div class="sidebar-user-info">
+          <p id="sidebarName">Loading…</p>
+          <span id="sidebarEmail">—</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <svg class="icon"><use href="#ic-menu"/></svg>
+      </button>
+      <div class="topbar-left">
+        <h2 id="pageTitle">Overview</h2>
+        <p id="pageDate">Loading date…</p>
+      </div>
+      <div class="topbar-actions">
+        <select id="languageSelectTop" onchange="setLanguage(this.value)" class="topbar-lang-select" title="Language">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="fr">FR</option>
+          <option value="pt">PT</option>
+          <option value="de">DE</option>
+        </select>
+        <button class="topbar-btn" onclick="toggleNotifPanel()" title="Notifications">
+          <svg class="icon"><use href="#ic-bell"/></svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <button class="topbar-btn" onclick="navigate('settings')" title="Settings">
+          <svg class="icon"><use href="#ic-settings"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ===== HOME PAGE ===== -->
+      <div class="page-view active" id="page-home">
+
+        <!-- Balance Cards -->
+        <div class="balance-grid">
+          <div class="balance-main">
+            <p class="bal-label" data-i18n="home.totalBalance">Total Balance</p>
+            <p class="bal-amount" id="balanceDisplay">—</p>
+            <p class="bal-currency" id="balanceCurrencyLabel">—</p>
+            <div class="bal-acct">
+              <span data-i18n="home.account">Account:</span> <strong id="acctNumDisplay">—</strong>
+              <button class="copy-btn" onclick="copyAccountNumber()" title="Copy account number">
+                <svg class="icon"><use href="#ic-copy"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="bal-stat">
+            <div class="bs-icon teal"><svg class="icon"><use href="#ic-trending-up"/></svg></div>
+            <div>
+              <p class="bs-label" data-i18n="home.moneyIn">Money In</p>
+              <p class="bs-val" id="totalIn">—</p>
+              <p class="bs-sub" data-i18n="home.thisMonth">This month</p>
+            </div>
+          </div>
+          <div class="bal-stat">
+            <div class="bs-icon gold"><svg class="icon"><use href="#ic-trending-down"/></svg></div>
+            <div>
+              <p class="bs-label" data-i18n="home.moneyOut">Money Out</p>
+              <p class="bs-val" id="totalOut">—</p>
+              <p class="bs-sub" data-i18n="home.thisMonth">This month</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button class="qa-btn" onclick="navigate('send')">
+            <div class="qa-icon teal"><svg class="icon"><use href="#ic-send"/></svg></div>
+            <span class="qa-label" data-i18n="home.send">Send</span>
+          </button>
+          <button class="qa-btn" onclick="navigate('deposit')">
+            <div class="qa-icon blue"><svg class="icon"><use href="#ic-deposit"/></svg></div>
+            <span class="qa-label" data-i18n="home.deposit">Deposit</span>
+          </button>
+          <button class="qa-btn" onclick="navigate('history')">
+            <div class="qa-icon pink"><svg class="icon"><use href="#ic-history"/></svg></div>
+            <span class="qa-label" data-i18n="home.history">History</span>
+          </button>
+        </div>
+
+        <!-- Two col: chart + account info -->
+        <div class="two-col" style="margin-bottom:24px">
+          <!-- Spending Overview -->
+          <div class="card">
+            <div class="card-header">
+              <p class="card-title" data-i18n="home.spendingOverview">Spending Overview</p>
+              <span id="spendPeriodLabel" style="font-size:12px;color:var(--ink3);font-weight:600" data-i18n="home.last7Days">Last 7 days</span>
+            </div>
+            <div style="padding:0 22px 18px">
+              <canvas id="spendChart" height="120" style="width:100%;display:block"></canvas>
+            </div>
+          </div>
+          <!-- Account Info Card -->
+          <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+            <div class="card-header"><p class="card-title" data-i18n="home.accountInfo">Account Info</p></div>
+            <div style="padding:0 22px 20px;display:flex;flex-direction:column;gap:13px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12.5px;color:var(--ink2);font-weight:600" data-i18n="home.accountType">Account Type</span>
+                <span style="font-size:13px;font-weight:800" id="infoAcctType">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12.5px;color:var(--ink2);font-weight:600" data-i18n="home.currency">Currency</span>
+                <span style="font-size:13px;font-weight:800" id="infoCurrency">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12.5px;color:var(--ink2);font-weight:600" data-i18n="home.accountStatus">Account Status</span>
+                <span class="badge badge-success" id="infoStatus">Active</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12.5px;color:var(--ink2);font-weight:600" data-i18n="home.memberSince">Member Since</span>
+                <span style="font-size:13px;font-weight:800" id="infoSince">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12.5px;color:var(--ink2);font-weight:600" data-i18n="home.country">Country</span>
+                <span style="font-size:13px;font-weight:800" id="infoCountry">—</span>
+              </div>
+              <hr style="border:none;border-top:1px solid var(--border)">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12.5px;color:var(--ink2);font-weight:600" data-i18n="home.accountNumber">Account Number</span>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="font-size:13px;font-weight:800;color:var(--teal-d)" id="infoAcctNum">—</span>
+                  <button class="copy-btn" onclick="copyAccountNumber()" style="color:var(--teal-d)">
+                    <svg class="icon" style="width:14px;height:14px"><use href="#ic-copy"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div class="card-header">
+            <p class="card-title" data-i18n="home.recentTransactions">Recent Transactions</p>
+            <button class="card-action" onclick="navigate('history')" data-i18n="home.viewAll">View all</button>
+          </div>
+          <div class="txn-list" id="homeTxnList">
+            <div class="empty-state">
+              <svg class="icon"><use href="#ic-history"/></svg>
+              <p data-i18n="home.noTransactions">No transactions yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SEND PAGE ===== -->
+      <div class="page-view" id="page-send">
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-header">
+            <p class="card-title" data-i18n="send.title">Send Money</p>
+          </div>
+          <div style="padding:0 22px 22px">
+            <p class="send-page section-title" style="font-size:12px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px" data-i18n="send.chooseType">Choose transfer type</p>
+            <div class="transfer-type-grid">
+              <div class="tt-card selected" id="tt-local" onclick="selectTransferType('local')">
+                <svg class="icon"><use href="#ic-bank"/></svg>
+                <h4 data-i18n="send.local.title">Local Transfer</h4>
+                <p data-i18n="send.local.sub">Same bank or domestic</p>
+              </div>
+              <div class="tt-card" id="tt-wire" onclick="selectTransferType('wire')">
+                <svg class="icon"><use href="#ic-globe"/></svg>
+                <h4 data-i18n="send.wire.title">International Wire</h4>
+                <p data-i18n="send.wire.sub">Send abroad (SWIFT)</p>
+              </div>
+              <div class="tt-card" id="tt-crypto" onclick="selectTransferType('crypto')">
+                <svg class="icon"><use href="#ic-wifi"/></svg>
+                <h4 data-i18n="send.crypto.title">Crypto Transfer</h4>
+                <p data-i18n="send.crypto.sub">BTC, ETH, USDT</p>
+              </div>
+            </div>
+
+            <!-- Local Transfer -->
+            <div id="form-local">
+              <div class="form-group">
+                <label>Recipient Account Number</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-bank"/></svg></span>
+                <input type="text" id="localAcctNo" placeholder="Enter account number"></div>
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label>Recipient Name</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-user"/></svg></span>
+                <input type="text" id="localName" placeholder="Full name of recipient"></div>
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Bank Name</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-briefcase"/></svg></span>
+                  <input type="text" id="localBank" placeholder="e.g. First Bank"></div>
+                  <span class="error-msg"></span>
+                </div>
+                <div class="form-group">
+                  <label>Amount</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-dollar"/></svg></span>
+                  <input type="number" id="localAmount" placeholder="0.00" min="1"></div>
+                  <span class="error-msg"></span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Narration / Description</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon" style="top:14px;transform:none"><use href="#ic-mail"/></svg></span>
+                <textarea id="localNarration" placeholder="Optional note"></textarea></div>
+              </div>
+            </div>
+
+            <!-- International Wire -->
+            <div id="form-wire" style="display:none">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Beneficiary Full Name</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-user"/></svg></span>
+                  <input type="text" id="wireName" placeholder="Full legal name"></div>
+                  <span class="error-msg"></span>
+                </div>
+                <div class="form-group">
+                  <label>Beneficiary Bank</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-bank"/></svg></span>
+                  <input type="text" id="wireBank" placeholder="Bank name"></div>
+                  <span class="error-msg"></span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>IBAN / Account Number</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-credit-card"/></svg></span>
+                  <input type="text" id="wireIBAN" placeholder="IBAN or account #"></div>
+                  <span class="error-msg"></span>
+                </div>
+                <div class="form-group">
+                  <label>SWIFT / BIC Code</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-globe"/></svg></span>
+                  <input type="text" id="wireSWIFT" placeholder="e.g. BOFAUS3N"></div>
+                  <span class="error-msg"></span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Destination Country</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-map-pin"/></svg></span>
+                  <input type="text" id="wireCountry" placeholder="Country"></div>
+                  <span class="error-msg"></span>
+                </div>
+                <div class="form-group">
+                  <label>Currency</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-dollar"/></svg></span>
+                  <select id="wireCurrency">
+                    <option value="">Select currency</option>
+                    <option>USD</option><option>EUR</option><option>GBP</option><option>NGN</option><option>CAD</option><option>AUD</option><option>AED</option>
+                  </select></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Amount</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-dollar"/></svg></span>
+                <input type="number" id="wireAmount" placeholder="0.00" min="1"></div>
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label>Purpose of Transfer</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-briefcase"/></svg></span>
+                <select id="wirePurpose">
+                  <option value="">Select purpose</option>
+                  <option>Family support</option><option>Business payment</option><option>Education fees</option><option>Medical expenses</option><option>Investment</option><option>Other</option>
+                </select></div>
+              </div>
+              <div class="form-group">
+                <label>Routing / Sort Code (if applicable)</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-lock"/></svg></span>
+                <input type="text" id="wireRouting" placeholder="Optional"></div>
+              </div>
+            </div>
+
+            <!-- Crypto Transfer -->
+            <div id="form-crypto" style="display:none">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Coin / Token</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-wifi"/></svg></span>
+                  <select id="cryptoCoin">
+                    <option value="">Select coin</option>
+                    <option>Bitcoin (BTC)</option><option>Ethereum (ETH)</option><option>USDT (TRC20)</option><option>USDT (ERC20)</option><option>USDC</option><option>BNB</option>
+                  </select></div>
+                  <span class="error-msg"></span>
+                </div>
+                <div class="form-group">
+                  <label>Amount</label>
+                  <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-dollar"/></svg></span>
+                  <input type="number" id="cryptoAmount" placeholder="0.00" min="0.0001" step="any"></div>
+                  <span class="error-msg"></span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Recipient Wallet Address</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-lock"/></svg></span>
+                <input type="text" id="cryptoAddress" placeholder="0x..."></div>
+                <span class="error-msg"></span>
+              </div>
+              <div class="form-group">
+                <label>Network</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-globe"/></svg></span>
+                <select id="cryptoNetwork">
+                  <option value="">Select network</option>
+                  <option>Bitcoin Network</option><option>Ethereum (ERC20)</option><option>Tron (TRC20)</option><option>BNB Smart Chain (BEP20)</option>
+                </select></div>
+              </div>
+            </div>
+
+            <div id="sendAlert" style="margin-top:14px"></div>
+            <div class="btn-group" style="margin-top:18px">
+              <button class="btn btn-outline" onclick="clearSendForm()">
+                <svg class="icon"><use href="#ic-x"/></svg> <span data-i18n="send.clear">Clear</span>
+              </button>
+              <button class="btn btn-primary" onclick="processSend()" id="sendBtn">
+                <svg class="icon"><use href="#ic-send"/></svg> <span data-i18n="send.sendMoney">Send Money</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DEPOSIT PAGE ===== -->
+      <div class="page-view" id="page-deposit">
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-header">
+            <p class="card-title" data-i18n="deposit.title">Deposit Funds</p>
+          </div>
+          <div style="padding:0 22px 22px">
+            <p style="font-size:12px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px" data-i18n="deposit.chooseMethod">Choose deposit method</p>
+            <div class="option-cards" style="grid-template-columns:repeat(2,1fr)">
+              <input type="radio" name="depositMethod" id="dep-bank" class="option-card-input" value="bank" checked>
+              <label for="dep-bank" class="option-card">
+                <svg class="icon"><use href="#ic-bank"/></svg>
+                <span class="oc-label" data-i18n="deposit.bankTransfer">Bank Transfer</span>
+                <span class="oc-sub">Wire / ACH</span>
+              </label>
+              <input type="radio" name="depositMethod" id="dep-crypto" class="option-card-input" value="crypto">
+              <label for="dep-crypto" class="option-card">
+                <svg class="icon"><use href="#ic-wifi"/></svg>
+                <span class="oc-label">Crypto</span>
+                <span class="oc-sub">BTC, ETH, USDT</span>
+              </label>
+            </div>
+
+            <div id="dep-bank-form">
+              <div class="alert alert-info"><svg class="icon"><use href="#ic-alert"/></svg><span data-i18n="deposit.bankNote">Send funds to the account details below. Your deposit will be marked pending until our team confirms and approves it.</span></div>
+              <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+                <p style="font-size:11px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px" data-i18n="deposit.bankDetails">Bank Deposit Details</p>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink2);font-weight:600" data-i18n="deposit.acctName">Account Name</span><span style="font-size:13px;font-weight:800" id="depAcctName">—</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink2);font-weight:600" data-i18n="deposit.acctNum">Account Number</span><span style="font-size:13px;font-weight:800;color:var(--teal-d)" id="depAcctNum">—</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink2);font-weight:600" data-i18n="deposit.bank">Bank</span><span style="font-size:13px;font-weight:800" id="depBankName">Quantum Digital Bank</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink2);font-weight:600" data-i18n="deposit.routing">Routing/Sort</span><span style="font-size:13px;font-weight:800" id="depRoutingCode">—</span></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label data-i18n="deposit.amountToDeposit">Amount to Deposit</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-dollar"/></svg></span>
+                <input type="number" id="depBankAmount" placeholder="0.00" min="1"></div>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="submitDeposit('Bank Transfer')">
+                <svg class="icon"><use href="#ic-check"/></svg> <span data-i18n="deposit.confirmBank">Confirm Deposit Request</span>
+              </button>
+            </div>
+
+            <div id="dep-crypto-form" style="display:none">
+              <div class="alert alert-info"><svg class="icon"><use href="#ic-alert"/></svg><span data-i18n="deposit.cryptoNote">Send crypto to the address below. Your deposit will be marked pending until our team confirms and approves it.</span></div>
+              <div class="form-group">
+                <label data-i18n="deposit.selectCoin">Select Coin</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-wifi"/></svg></span>
+                <select id="depCryptoCoin" onchange="updateCryptoAddress()">
+                  <option value="BTC">Bitcoin (BTC)</option>
+                  <option value="ETH">Ethereum (ETH)</option>
+                  <option value="USDT">USDT (TRC20)</option>
+                </select></div>
+              </div>
+              <div style="background:var(--surface2);border:1.5px solid var(--teal-d);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;text-align:center">
+                <p style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:6px" data-i18n="deposit.address">DEPOSIT ADDRESS</p>
+                <p id="cryptoDepAddr" style="font-size:13px;font-weight:700;color:var(--teal-d);word-break:break-all">—</p>
+                <button class="btn" style="margin-top:10px;height:32px;padding:0 14px;font-size:12px;background:var(--teal-bg);color:var(--teal-d);border:none" onclick="copyCryptoAddr()">
+                  <svg class="icon"><use href="#ic-copy"/></svg> <span data-i18n="deposit.copyAddress">Copy Address</span>
+                </button>
+              </div>
+              <div class="form-group">
+                <label data-i18n="deposit.amountInCoin">Amount (in coin)</label>
+                <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-dollar"/></svg></span>
+                <input type="number" id="depCryptoAmt" placeholder="0.0000" step="any"></div>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="submitDeposit('Crypto')">
+                <svg class="icon"><use href="#ic-check"/></svg> <span data-i18n="deposit.confirmCrypto">I've Sent — Confirm</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== HISTORY PAGE ===== -->
+      <div class="page-view" id="page-history">
+        <div class="card">
+          <div class="card-header">
+            <p class="card-title" data-i18n="history.title">All Transactions</p>
+            <select id="txnFilter" onchange="renderAllTransactions()" style="height:34px;padding:0 30px 0 10px;font-size:12px;width:auto">
+              <option value="all" data-i18n="history.all">All</option>
+              <option value="credit" data-i18n="history.credits">Credits</option>
+              <option value="debit" data-i18n="history.debits">Debits</option>
+              <option value="pending" data-i18n="history.pending">Pending</option>
+            </select>
+          </div>
+          <div class="txn-list" id="allTxnList">
+            <div class="empty-state">
+              <svg class="icon"><use href="#ic-history"/></svg>
+              <p data-i18n="history.noTransactions">No transactions found</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PROFILE PAGE ===== -->
+      <div class="page-view" id="page-profile">
+        <div class="card">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profileAvatar">--</div>
+            <div class="profile-info">
+              <h3 id="profileName">—</h3>
+              <p id="profileEmail">—</p>
+              <div class="profile-acct">
+                <span class="acct-tag" id="profileAcct">—</span>
+                <button class="copy-btn" onclick="copyAccountNumber()" title="Copy account number" style="color:var(--teal-d)">
+                  <svg class="icon" style="width:16px;height:16px"><use href="#ic-copy"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="edit-profile-btn" onclick="openEditProfile()" id="editProfileBtn">
+              <svg class="icon"><use href="#ic-edit"/></svg> <span data-i18n="profile.edit">Edit</span>
+            </button>
+          </div>
+          <div class="profile-fields" id="profileFields">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS PAGE ===== -->
+      <div class="page-view" id="page-settings">
+        <div class="card settings-section" style="margin-bottom:18px">
+          <div class="card-header"><p class="card-title" data-i18n="settings.preferences">Preferences</p></div>
+          <div class="settings-row">
+            <div class="settings-label">
+              <div class="settings-label-icon teal"><svg class="icon"><use href="#ic-moon"/></svg></div>
+              <div>
+                <h4 data-i18n="settings.darkMode.title">Dark Mode</h4>
+                <p data-i18n="settings.darkMode.sub">Switch to dark theme</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">
+              <div class="settings-label-icon purple"><svg class="icon"><use href="#ic-globe"/></svg></div>
+              <div>
+                <h4 data-i18n="settings.language.title">Language</h4>
+                <p data-i18n="settings.language.sub">Change dashboard language</p>
+              </div>
+            </div>
+            <select id="languageSelect" onchange="setLanguage(this.value)" style="height:38px;padding:0 30px 0 12px;font-size:13px;border:1.5px solid var(--border);background:var(--surface2);color:var(--ink);border-radius:var(--radius-sm);font-weight:600">
+              <option value="en">English</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="pt">Português</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">
+              <div class="settings-label-icon blue"><svg class="icon"><use href="#ic-bell"/></svg></div>
+              <div>
+                <h4 data-i18n="settings.notif.title">Push Notifications</h4>
+                <p data-i18n="settings.notif.sub">Transaction alerts</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifToggle" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">
+              <div class="settings-label-icon gold"><svg class="icon"><use href="#ic-shield"/></svg></div>
+              <div>
+                <h4 data-i18n="settings.tfa.title">Two-Factor Authentication</h4>
+                <p data-i18n="settings.tfa.sub">Extra login security</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="tfaToggle">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card settings-section" style="margin-bottom:18px">
+          <div class="card-header"><p class="card-title" data-i18n="settings.account">Account</p></div>
+          <div class="settings-row" style="cursor:pointer" onclick="navigate('profile')">
+            <div class="settings-label">
+              <div class="settings-label-icon teal"><svg class="icon"><use href="#ic-user"/></svg></div>
+              <div><h4 data-i18n="settings.editProfile.title">Edit Profile</h4><p data-i18n="settings.editProfile.sub">Update personal info</p></div>
+            </div>
+            <svg class="icon" style="width:16px;height:16px;color:var(--ink3)"><use href="#ic-arrow-right"/></svg>
+          </div>
+          <div class="settings-row" style="cursor:pointer" onclick="openModal('changePwModal')">
+            <div class="settings-label">
+              <div class="settings-label-icon blue"><svg class="icon"><use href="#ic-lock"/></svg></div>
+              <div><h4 data-i18n="settings.changePw.title">Change Password</h4><p data-i18n="settings.changePw.sub">Update your password</p></div>
+            </div>
+            <svg class="icon" style="width:16px;height:16px;color:var(--ink3)"><use href="#ic-arrow-right"/></svg>
+          </div>
+          <div class="settings-row" style="cursor:pointer" onclick="signOut()">
+            <div class="settings-label">
+              <div class="settings-label-icon red"><svg class="icon"><use href="#ic-log-out"/></svg></div>
+              <div><h4 data-i18n="settings.signOut.title">Sign Out</h4><p data-i18n="settings.signOut.sub">Log out of your account</p></div>
+            </div>
+            <svg class="icon" style="width:16px;height:16px;color:var(--ink3)"><use href="#ic-arrow-right"/></svg>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- Edit Profile Modal -->
+<div class="overlay" id="editProfileModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editProfileModal')"><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div class="modal-header">
+      <div class="modal-icon teal"><svg class="icon"><use href="#ic-edit"/></svg></div>
+      <div><p class="modal-title">Edit Profile</p><p class="modal-sub">Update your personal information</p></div>
+    </div>
+    <div id="editProfileAlert"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-user"/></svg></span>
+        <input type="text" id="ep-firstName"></div>
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-user"/></svg></span>
+        <input type="text" id="ep-lastName"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Phone Number</label>
+      <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-phone"/></svg></span>
+      <input type="tel" id="ep-phone"></div>
+    </div>
+    <div class="form-group">
+      <label>Address</label>
+      <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-map-pin"/></svg></span>
+      <input type="text" id="ep-address"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>City</label>
+        <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-map-pin"/></svg></span>
+        <input type="text" id="ep-city"></div>
+      </div>
+      <div class="form-group">
+        <label>Occupation</label>
+        <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-briefcase"/></svg></span>
+        <input type="text" id="ep-occupation"></div>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="closeModal('editProfileModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfile()" id="saveProfileBtn">
+        <svg class="icon"><use href="#ic-check"/></svg> Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="overlay" id="changePwModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('changePwModal')"><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div class="modal-header">
+      <div class="modal-icon blue"><svg class="icon"><use href="#ic-lock"/></svg></div>
+      <div><p class="modal-title">Change Password</p><p class="modal-sub">Choose a new strong password</p></div>
+    </div>
+    <div id="changePwAlert"></div>
+    <div class="form-group">
+      <label>Current Password</label>
+      <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-lock"/></svg></span>
+      <input type="password" id="cpw-current" placeholder="Current password"></div>
+    </div>
+    <div class="form-group">
+      <label>New Password</label>
+      <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-lock"/></svg></span>
+      <input type="password" id="cpw-new" placeholder="At least 8 characters"></div>
+    </div>
+    <div class="form-group">
+      <label>Confirm New Password</label>
+      <div class="input-wrap"><span class="field-icon"><svg class="icon"><use href="#ic-lock"/></svg></span>
+      <input type="password" id="cpw-confirm" placeholder="Repeat new password"></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="closeModal('changePwModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="changePassword()">
+        <svg class="icon"><use href="#ic-check"/></svg> Update Password
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer Confirm Modal -->
+<div class="overlay" id="confirmModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('confirmModal')"><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div id="confirmModalContent"></div>
+  </div>
+</div>
+
+<!-- Transaction PIN Modal -->
+<div class="overlay" id="txnPinModal">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-close" onclick="closeTxnPinModal()"><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div id="txnPinModalContent"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:700;z-index:9000;transition:transform 0.3s ease;white-space:nowrap;box-shadow:0 8px 24px -8px rgba(0,0,0,0.4)"></div>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+// ========== FIREBASE CONFIG (same as register.html) ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyApsP3dmRBiBQ1_1Rj7HYaa-ZO9RuwbbG4",
+  authDomain: "quantum-bank-fe2d2.firebaseapp.com",
+  projectId: "quantum-bank-fe2d2",
+  storageBucket: "quantum-bank-fe2d2.firebasestorage.app",
+  messagingSenderId: "29002383788",
+  appId: "1:29002383788:web:109cff0125fba69f107a09"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+// ========== STATE ==========
+let userData = {};
+let currentUser = null;
+let transactions = [];
+let transferType = 'local';
+let previousTxnSnapshot = {};
+
+// Currency symbol lookup
+const currencySymbols = {
+  'GBP': '£', 'USD': '$', 'EUR': '€', 'NGN': '₦', 'CAD': 'CA$',
+  'AUD': 'A$', 'AED': 'د.إ', 'ZAR': 'R', 'INR': '₹', 'Other': ''
+};
+
+function getCurrencyCode() {
+  const raw = userData.currency || '';
+  const match = raw.match(/^([A-Z]{2,4})/);
+  return match ? match[1] : 'USD';
+}
+
+function getCurrencySymbol() {
+  return currencySymbols[getCurrencyCode()] || getCurrencyCode() + ' ';
+}
+
+function formatMoney(amount) {
+  const sym = getCurrencySymbol();
+  const num = parseFloat(amount) || 0;
+  return sym + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// ========== LANGUAGE / i18n ==========
+const translations = {
+  en: {
+    'sidebar.tagline': 'Digital Banking Platform', 'sidebar.main': 'Main', 'sidebar.overview': 'Overview',
+    'sidebar.send': 'Send Money', 'sidebar.deposit': 'Deposit Funds', 'sidebar.transactions': 'Transactions',
+    'sidebar.account': 'Account', 'sidebar.profile': 'Profile', 'sidebar.settings': 'Settings',
+    'titles.home': 'Overview', 'titles.send': 'Send Money', 'titles.deposit': 'Deposit Funds',
+    'titles.history': 'Transaction History', 'titles.profile': 'My Profile', 'titles.settings': 'Settings',
+    'home.totalBalance': 'Total Balance', 'home.account': 'Account:', 'home.moneyIn': 'Money In', 'home.moneyOut': 'Money Out',
+    'home.thisMonth': 'This month', 'home.send': 'Send', 'home.deposit': 'Deposit', 'home.history': 'History',
+    'home.spendingOverview': 'Spending Overview', 'home.last7Days': 'Last 7 days', 'home.accountInfo': 'Account Info',
+    'home.accountType': 'Account Type', 'home.currency': 'Currency', 'home.accountStatus': 'Account Status',
+    'home.memberSince': 'Member Since', 'home.country': 'Country', 'home.accountNumber': 'Account Number',
+    'home.recentTransactions': 'Recent Transactions', 'home.viewAll': 'View all', 'home.noTransactions': 'No transactions yet',
+    'send.title': 'Send Money', 'send.chooseType': 'Choose transfer type', 'send.local.title': 'Local Transfer',
+    'send.local.sub': 'Same bank or domestic', 'send.wire.title': 'International Wire', 'send.wire.sub': 'Send abroad (SWIFT)',
+    'send.crypto.title': 'Crypto Transfer', 'send.crypto.sub': 'BTC, ETH, USDT', 'send.clear': 'Clear', 'send.sendMoney': 'Send Money',
+    'deposit.title': 'Deposit Funds', 'deposit.chooseMethod': 'Choose deposit method', 'deposit.bankTransfer': 'Bank Transfer',
+    'deposit.bankNote': 'Send funds to the account details below. Your deposit will be marked pending until our team confirms and approves it.',
+    'deposit.bankDetails': 'Bank Deposit Details', 'deposit.acctName': 'Account Name', 'deposit.acctNum': 'Account Number',
+    'deposit.bank': 'Bank', 'deposit.routing': 'Routing/Sort', 'deposit.amountToDeposit': 'Amount to Deposit',
+    'deposit.confirmBank': 'Confirm Deposit Request', 'deposit.cryptoNote': 'Send crypto to the address below. Your deposit will be marked pending until our team confirms and approves it.',
+    'deposit.selectCoin': 'Select Coin', 'deposit.address': 'DEPOSIT ADDRESS', 'deposit.copyAddress': 'Copy Address',
+    'deposit.amountInCoin': 'Amount (in coin)', 'deposit.confirmCrypto': "I've Sent — Confirm",
+    'history.title': 'All Transactions', 'history.all': 'All', 'history.credits': 'Credits', 'history.debits': 'Debits',
+    'history.pending': 'Pending', 'history.noTransactions': 'No transactions found',
+    'profile.edit': 'Edit',
+    'settings.preferences': 'Preferences', 'settings.darkMode.title': 'Dark Mode', 'settings.darkMode.sub': 'Switch to dark theme',
+    'settings.language.title': 'Language', 'settings.language.sub': 'Change dashboard language',
+    'settings.notif.title': 'Push Notifications', 'settings.notif.sub': 'Transaction alerts',
+    'settings.tfa.title': 'Two-Factor Authentication', 'settings.tfa.sub': 'Extra login security',
+    'settings.account': 'Account', 'settings.editProfile.title': 'Edit Profile', 'settings.editProfile.sub': 'Update personal info',
+    'settings.changePw.title': 'Change Password', 'settings.changePw.sub': 'Update your password',
+    'settings.signOut.title': 'Sign Out', 'settings.signOut.sub': 'Log out of your account'
+  },
+  es: {
+    'sidebar.tagline': 'Plataforma de Banca Digital', 'sidebar.main': 'Principal', 'sidebar.overview': 'Resumen',
+    'sidebar.send': 'Enviar Dinero', 'sidebar.deposit': 'Depositar Fondos', 'sidebar.transactions': 'Transacciones',
+    'sidebar.account': 'Cuenta', 'sidebar.profile': 'Perfil', 'sidebar.settings': 'Configuración',
+    'titles.home': 'Resumen', 'titles.send': 'Enviar Dinero', 'titles.deposit': 'Depositar Fondos',
+    'titles.history': 'Historial de Transacciones', 'titles.profile': 'Mi Perfil', 'titles.settings': 'Configuración',
+    'home.totalBalance': 'Saldo Total', 'home.account': 'Cuenta:', 'home.moneyIn': 'Ingresos', 'home.moneyOut': 'Egresos',
+    'home.thisMonth': 'Este mes', 'home.send': 'Enviar', 'home.deposit': 'Depositar', 'home.history': 'Historial',
+    'home.spendingOverview': 'Resumen de Gastos', 'home.last7Days': 'Últimos 7 días', 'home.accountInfo': 'Información de Cuenta',
+    'home.accountType': 'Tipo de Cuenta', 'home.currency': 'Moneda', 'home.accountStatus': 'Estado de Cuenta',
+    'home.memberSince': 'Miembro Desde', 'home.country': 'País', 'home.accountNumber': 'Número de Cuenta',
+    'home.recentTransactions': 'Transacciones Recientes', 'home.viewAll': 'Ver todo', 'home.noTransactions': 'Aún no hay transacciones',
+    'send.title': 'Enviar Dinero', 'send.chooseType': 'Elige el tipo de transferencia', 'send.local.title': 'Transferencia Local',
+    'send.local.sub': 'Mismo banco o nacional', 'send.wire.title': 'Transferencia Internacional', 'send.wire.sub': 'Enviar al exterior (SWIFT)',
+    'send.crypto.title': 'Transferencia Cripto', 'send.crypto.sub': 'BTC, ETH, USDT', 'send.clear': 'Borrar', 'send.sendMoney': 'Enviar Dinero',
+    'deposit.title': 'Depositar Fondos', 'deposit.chooseMethod': 'Elige el método de depósito', 'deposit.bankTransfer': 'Transferencia Bancaria',
+    'deposit.bankNote': 'Envía los fondos a los datos de la cuenta a continuación. Tu depósito quedará pendiente hasta que nuestro equipo lo confirme y apruebe.',
+    'deposit.bankDetails': 'Datos del Depósito Bancario', 'deposit.acctName': 'Nombre de la Cuenta', 'deposit.acctNum': 'Número de Cuenta',
+    'deposit.bank': 'Banco', 'deposit.routing': 'Código de Ruta', 'deposit.amountToDeposit': 'Monto a Depositar',
+    'deposit.confirmBank': 'Confirmar Solicitud de Depósito', 'deposit.cryptoNote': 'Envía la criptomoneda a la dirección a continuación. Tu depósito quedará pendiente hasta que nuestro equipo lo confirme y apruebe.',
+    'deposit.selectCoin': 'Selecciona la Moneda', 'deposit.address': 'DIRECCIÓN DE DEPÓSITO', 'deposit.copyAddress': 'Copiar Dirección',
+    'deposit.amountInCoin': 'Monto (en moneda)', 'deposit.confirmCrypto': 'Ya Envié — Confirmar',
+    'history.title': 'Todas las Transacciones', 'history.all': 'Todas', 'history.credits': 'Créditos', 'history.debits': 'Débitos',
+    'history.pending': 'Pendiente', 'history.noTransactions': 'No se encontraron transacciones',
+    'profile.edit': 'Editar',
+    'settings.preferences': 'Preferencias', 'settings.darkMode.title': 'Modo Oscuro', 'settings.darkMode.sub': 'Cambiar a tema oscuro',
+    'settings.language.title': 'Idioma', 'settings.language.sub': 'Cambiar idioma del panel',
+    'settings.notif.title': 'Notificaciones Push', 'settings.notif.sub': 'Alertas de transacciones',
+    'settings.tfa.title': 'Autenticación de Dos Factores', 'settings.tfa.sub': 'Seguridad adicional de inicio de sesión',
+    'settings.account': 'Cuenta', 'settings.editProfile.title': 'Editar Perfil', 'settings.editProfile.sub': 'Actualizar información personal',
+    'settings.changePw.title': 'Cambiar Contraseña', 'settings.changePw.sub': 'Actualizar tu contraseña',
+    'settings.signOut.title': 'Cerrar Sesión', 'settings.signOut.sub': 'Salir de tu cuenta'
+  },
+  fr: {
+    'sidebar.tagline': 'Plateforme Bancaire Numérique', 'sidebar.main': 'Principal', 'sidebar.overview': 'Aperçu',
+    'sidebar.send': 'Envoyer de l\'Argent', 'sidebar.deposit': 'Déposer des Fonds', 'sidebar.transactions': 'Transactions',
+    'sidebar.account': 'Compte', 'sidebar.profile': 'Profil', 'sidebar.settings': 'Paramètres',
+    'titles.home': 'Aperçu', 'titles.send': 'Envoyer de l\'Argent', 'titles.deposit': 'Déposer des Fonds',
+    'titles.history': 'Historique des Transactions', 'titles.profile': 'Mon Profil', 'titles.settings': 'Paramètres',
+    'home.totalBalance': 'Solde Total', 'home.account': 'Compte :', 'home.moneyIn': 'Entrées', 'home.moneyOut': 'Sorties',
+    'home.thisMonth': 'Ce mois-ci', 'home.send': 'Envoyer', 'home.deposit': 'Déposer', 'home.history': 'Historique',
+    'home.spendingOverview': 'Aperçu des Dépenses', 'home.last7Days': '7 derniers jours', 'home.accountInfo': 'Infos du Compte',
+    'home.accountType': 'Type de Compte', 'home.currency': 'Devise', 'home.accountStatus': 'Statut du Compte',
+    'home.memberSince': 'Membre Depuis', 'home.country': 'Pays', 'home.accountNumber': 'Numéro de Compte',
+    'home.recentTransactions': 'Transactions Récentes', 'home.viewAll': 'Tout voir', 'home.noTransactions': 'Aucune transaction pour le moment',
+    'send.title': 'Envoyer de l\'Argent', 'send.chooseType': 'Choisissez le type de virement', 'send.local.title': 'Virement Local',
+    'send.local.sub': 'Même banque ou national', 'send.wire.title': 'Virement International', 'send.wire.sub': 'Envoyer à l\'étranger (SWIFT)',
+    'send.crypto.title': 'Virement Crypto', 'send.crypto.sub': 'BTC, ETH, USDT', 'send.clear': 'Effacer', 'send.sendMoney': 'Envoyer l\'Argent',
+    'deposit.title': 'Déposer des Fonds', 'deposit.chooseMethod': 'Choisissez la méthode de dépôt', 'deposit.bankTransfer': 'Virement Bancaire',
+    'deposit.bankNote': 'Envoyez les fonds aux coordonnées du compte ci-dessous. Votre dépôt restera en attente jusqu\'à confirmation et approbation par notre équipe.',
+    'deposit.bankDetails': 'Coordonnées du Dépôt Bancaire', 'deposit.acctName': 'Nom du Compte', 'deposit.acctNum': 'Numéro de Compte',
+    'deposit.bank': 'Banque', 'deposit.routing': 'Code Guichet', 'deposit.amountToDeposit': 'Montant à Déposer',
+    'deposit.confirmBank': 'Confirmer la Demande de Dépôt', 'deposit.cryptoNote': 'Envoyez la crypto à l\'adresse ci-dessous. Votre dépôt restera en attente jusqu\'à confirmation et approbation par notre équipe.',
+    'deposit.selectCoin': 'Choisir la Monnaie', 'deposit.address': 'ADRESSE DE DÉPÔT', 'deposit.copyAddress': 'Copier l\'Adresse',
+    'deposit.amountInCoin': 'Montant (en monnaie)', 'deposit.confirmCrypto': 'Envoyé — Confirmer',
+    'history.title': 'Toutes les Transactions', 'history.all': 'Toutes', 'history.credits': 'Crédits', 'history.debits': 'Débits',
+    'history.pending': 'En attente', 'history.noTransactions': 'Aucune transaction trouvée',
+    'profile.edit': 'Modifier',
+    'settings.preferences': 'Préférences', 'settings.darkMode.title': 'Mode Sombre', 'settings.darkMode.sub': 'Passer au thème sombre',
+    'settings.language.title': 'Langue', 'settings.language.sub': 'Changer la langue du tableau de bord',
+    'settings.notif.title': 'Notifications Push', 'settings.notif.sub': 'Alertes de transaction',
+    'settings.tfa.title': 'Authentification à Deux Facteurs', 'settings.tfa.sub': 'Sécurité supplémentaire à la connexion',
+    'settings.account': 'Compte', 'settings.editProfile.title': 'Modifier le Profil', 'settings.editProfile.sub': 'Mettre à jour les infos personnelles',
+    'settings.changePw.title': 'Changer le Mot de Passe', 'settings.changePw.sub': 'Mettre à jour votre mot de passe',
+    'settings.signOut.title': 'Se Déconnecter', 'settings.signOut.sub': 'Quitter votre compte'
+  },
+  pt: {
+    'sidebar.tagline': 'Plataforma de Banco Digital', 'sidebar.main': 'Principal', 'sidebar.overview': 'Visão Geral',
+    'sidebar.send': 'Enviar Dinheiro', 'sidebar.deposit': 'Depositar Fundos', 'sidebar.transactions': 'Transações',
+    'sidebar.account': 'Conta', 'sidebar.profile': 'Perfil', 'sidebar.settings': 'Configurações',
+    'titles.home': 'Visão Geral', 'titles.send': 'Enviar Dinheiro', 'titles.deposit': 'Depositar Fundos',
+    'titles.history': 'Histórico de Transações', 'titles.profile': 'Meu Perfil', 'titles.settings': 'Configurações',
+    'home.totalBalance': 'Saldo Total', 'home.account': 'Conta:', 'home.moneyIn': 'Entradas', 'home.moneyOut': 'Saídas',
+    'home.thisMonth': 'Este mês', 'home.send': 'Enviar', 'home.deposit': 'Depositar', 'home.history': 'Histórico',
+    'home.spendingOverview': 'Resumo de Gastos', 'home.last7Days': 'Últimos 7 dias', 'home.accountInfo': 'Informações da Conta',
+    'home.accountType': 'Tipo de Conta', 'home.currency': 'Moeda', 'home.accountStatus': 'Status da Conta',
+    'home.memberSince': 'Membro Desde', 'home.country': 'País', 'home.accountNumber': 'Número da Conta',
+    'home.recentTransactions': 'Transações Recentes', 'home.viewAll': 'Ver tudo', 'home.noTransactions': 'Ainda não há transações',
+    'send.title': 'Enviar Dinheiro', 'send.chooseType': 'Escolha o tipo de transferência', 'send.local.title': 'Transferência Local',
+    'send.local.sub': 'Mesmo banco ou nacional', 'send.wire.title': 'Transferência Internacional', 'send.wire.sub': 'Enviar ao exterior (SWIFT)',
+    'send.crypto.title': 'Transferência Cripto', 'send.crypto.sub': 'BTC, ETH, USDT', 'send.clear': 'Limpar', 'send.sendMoney': 'Enviar Dinheiro',
+    'deposit.title': 'Depositar Fundos', 'deposit.chooseMethod': 'Escolha o método de depósito', 'deposit.bankTransfer': 'Transferência Bancária',
+    'deposit.bankNote': 'Envie os fundos para os dados da conta abaixo. Seu depósito ficará pendente até que nossa equipe confirme e aprove.',
+    'deposit.bankDetails': 'Dados do Depósito Bancário', 'deposit.acctName': 'Nome da Conta', 'deposit.acctNum': 'Número da Conta',
+    'deposit.bank': 'Banco', 'deposit.routing': 'Código Bancário', 'deposit.amountToDeposit': 'Valor a Depositar',
+    'deposit.confirmBank': 'Confirmar Solicitação de Depósito', 'deposit.cryptoNote': 'Envie a cripto para o endereço abaixo. Seu depósito ficará pendente até que nossa equipe confirme e aprove.',
+    'deposit.selectCoin': 'Selecionar Moeda', 'deposit.address': 'ENDEREÇO DE DEPÓSITO', 'deposit.copyAddress': 'Copiar Endereço',
+    'deposit.amountInCoin': 'Valor (na moeda)', 'deposit.confirmCrypto': 'Já Enviei — Confirmar',
+    'history.title': 'Todas as Transações', 'history.all': 'Todas', 'history.credits': 'Créditos', 'history.debits': 'Débitos',
+    'history.pending': 'Pendente', 'history.noTransactions': 'Nenhuma transação encontrada',
+    'profile.edit': 'Editar',
+    'settings.preferences': 'Preferências', 'settings.darkMode.title': 'Modo Escuro', 'settings.darkMode.sub': 'Mudar para tema escuro',
+    'settings.language.title': 'Idioma', 'settings.language.sub': 'Alterar idioma do painel',
+    'settings.notif.title': 'Notificações Push', 'settings.notif.sub': 'Alertas de transação',
+    'settings.tfa.title': 'Autenticação de Dois Fatores', 'settings.tfa.sub': 'Segurança extra no login',
+    'settings.account': 'Conta', 'settings.editProfile.title': 'Editar Perfil', 'settings.editProfile.sub': 'Atualizar informações pessoais',
+    'settings.changePw.title': 'Alterar Senha', 'settings.changePw.sub': 'Atualizar sua senha',
+    'settings.signOut.title': 'Sair', 'settings.signOut.sub': 'Sair da sua conta'
+  },
+  de: {
+    'sidebar.tagline': 'Digitale Bankplattform', 'sidebar.main': 'Hauptmenü', 'sidebar.overview': 'Übersicht',
+    'sidebar.send': 'Geld Senden', 'sidebar.deposit': 'Geld Einzahlen', 'sidebar.transactions': 'Transaktionen',
+    'sidebar.account': 'Konto', 'sidebar.profile': 'Profil', 'sidebar.settings': 'Einstellungen',
+    'titles.home': 'Übersicht', 'titles.send': 'Geld Senden', 'titles.deposit': 'Geld Einzahlen',
+    'titles.history': 'Transaktionsverlauf', 'titles.profile': 'Mein Profil', 'titles.settings': 'Einstellungen',
+    'home.totalBalance': 'Gesamtguthaben', 'home.account': 'Konto:', 'home.moneyIn': 'Eingänge', 'home.moneyOut': 'Ausgänge',
+    'home.thisMonth': 'Diesen Monat', 'home.send': 'Senden', 'home.deposit': 'Einzahlen', 'home.history': 'Verlauf',
+    'home.spendingOverview': 'Ausgabenübersicht', 'home.last7Days': 'Letzte 7 Tage', 'home.accountInfo': 'Kontoinformationen',
+    'home.accountType': 'Kontotyp', 'home.currency': 'Währung', 'home.accountStatus': 'Kontostatus',
+    'home.memberSince': 'Mitglied Seit', 'home.country': 'Land', 'home.accountNumber': 'Kontonummer',
+    'home.recentTransactions': 'Letzte Transaktionen', 'home.viewAll': 'Alle anzeigen', 'home.noTransactions': 'Noch keine Transaktionen',
+    'send.title': 'Geld Senden', 'send.chooseType': 'Überweisungsart wählen', 'send.local.title': 'Inlandsüberweisung',
+    'send.local.sub': 'Gleiche Bank oder national', 'send.wire.title': 'Internationale Überweisung', 'send.wire.sub': 'Ins Ausland senden (SWIFT)',
+    'send.crypto.title': 'Krypto-Überweisung', 'send.crypto.sub': 'BTC, ETH, USDT', 'send.clear': 'Leeren', 'send.sendMoney': 'Geld Senden',
+    'deposit.title': 'Geld Einzahlen', 'deposit.chooseMethod': 'Einzahlungsmethode wählen', 'deposit.bankTransfer': 'Banküberweisung',
+    'deposit.bankNote': 'Senden Sie das Geld an die unten genannten Kontodaten. Ihre Einzahlung bleibt ausstehend, bis unser Team sie bestätigt und genehmigt.',
+    'deposit.bankDetails': 'Bankeinzahlungsdaten', 'deposit.acctName': 'Kontoname', 'deposit.acctNum': 'Kontonummer',
+    'deposit.bank': 'Bank', 'deposit.routing': 'Bankleitzahl', 'deposit.amountToDeposit': 'Einzuzahlender Betrag',
+    'deposit.confirmBank': 'Einzahlungsanfrage Bestätigen', 'deposit.cryptoNote': 'Senden Sie die Kryptowährung an die unten genannte Adresse. Ihre Einzahlung bleibt ausstehend, bis unser Team sie bestätigt und genehmigt.',
+    'deposit.selectCoin': 'Münze Auswählen', 'deposit.address': 'EINZAHLUNGSADRESSE', 'deposit.copyAddress': 'Adresse Kopieren',
+    'deposit.amountInCoin': 'Betrag (in Münze)', 'deposit.confirmCrypto': 'Gesendet — Bestätigen',
+    'history.title': 'Alle Transaktionen', 'history.all': 'Alle', 'history.credits': 'Gutschriften', 'history.debits': 'Lastschriften',
+    'history.pending': 'Ausstehend', 'history.noTransactions': 'Keine Transaktionen gefunden',
+    'profile.edit': 'Bearbeiten',
+    'settings.preferences': 'Einstellungen', 'settings.darkMode.title': 'Dunkler Modus', 'settings.darkMode.sub': 'Zum dunklen Design wechseln',
+    'settings.language.title': 'Sprache', 'settings.language.sub': 'Dashboard-Sprache ändern',
+    'settings.notif.title': 'Push-Benachrichtigungen', 'settings.notif.sub': 'Transaktionsbenachrichtigungen',
+    'settings.tfa.title': 'Zwei-Faktor-Authentifizierung', 'settings.tfa.sub': 'Zusätzliche Anmeldesicherheit',
+    'settings.account': 'Konto', 'settings.editProfile.title': 'Profil Bearbeiten', 'settings.editProfile.sub': 'Persönliche Daten aktualisieren',
+    'settings.changePw.title': 'Passwort Ändern', 'settings.changePw.sub': 'Ihr Passwort aktualisieren',
+    'settings.signOut.title': 'Abmelden', 'settings.signOut.sub': 'Von Ihrem Konto abmelden'
+  }
+};
+
+let currentLang = localStorage.getItem('qd_lang') || 'en';
+const pageTitleKeys = { home: 'titles.home', send: 'titles.send', deposit: 'titles.deposit', history: 'titles.history', profile: 'titles.profile', settings: 'titles.settings' };
+
+function t(key) {
+  return (translations[currentLang] && translations[currentLang][key]) || (translations.en[key]) || key;
+}
+
+function applyTranslations() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+  // Sync both language selectors
+  const sel1 = document.getElementById('languageSelect');
+  const sel2 = document.getElementById('languageSelectTop');
+  if (sel1) sel1.value = currentLang;
+  if (sel2) sel2.value = currentLang;
+  // Re-translate current page title (set dynamically, not via data-i18n)
+  const activePage = document.querySelector('.page-view.active');
+  if (activePage) {
+    const pageKey = activePage.id.replace('page-', '');
+    const titleEl = document.getElementById('pageTitle');
+    if (titleEl && pageTitleKeys[pageKey]) titleEl.textContent = t(pageTitleKeys[pageKey]);
+  }
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('qd_lang', lang);
+  applyTranslations();
+}
+
+// ========== AUTH GUARD ==========
+// Apply saved language immediately to static UI (sidebar, labels) before auth resolves
+applyTranslations();
+
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+  currentUser = user;
+  await loadUserData();
+});
+
+async function loadUserData() {
+  try {
+    const snap = await db.ref('users/' + currentUser.uid).once('value');
+    if (!snap.exists()) { signOut(); return; }
+    userData = snap.val();
+
+    // Check if blocked by admin
+    if (userData.blocked) {
+      document.getElementById('blockedOverlay').classList.add('show');
+      return;
+    }
+
+    // Load transactions (initial seed)
+    const txSnap = await db.ref('transactions/' + currentUser.uid).once('value');
+    transactions = [];
+    if (txSnap.exists()) {
+      txSnap.forEach(child => {
+        const t = { id: child.key, ...child.val() };
+        transactions.push(t);
+        previousTxnSnapshot[child.key] = t; // seed so existing approved txns don't re-trigger
+      });
+      transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+
+    initDashboard();
+
+    // Listen for real-time balance / block changes
+    db.ref('users/' + currentUser.uid).on('value', snap => {
+      if (!snap.exists()) return;
+      const updated = snap.val();
+      if (updated.blocked) {
+        document.getElementById('blockedOverlay').classList.add('show');
+        return;
+      }
+      userData = updated;
+      updateBalanceDisplay();
+      populateAccountInfoCard();
+    });
+
+    // Listen for real-time transactions + handle admin-approved debits
+    // (previousTxnSnapshot was already declared + seeded above, near line 1669/1928 —
+    // redeclaring it here with `let` shadowed it for the whole function due to TDZ,
+    // which is what caused "Cannot access before initialization")
+    db.ref('transactions/' + currentUser.uid).on('value', async snap => {
+      const newTxnMap = {};
+      if (snap.exists()) {
+        snap.forEach(child => { newTxnMap[child.key] = { id: child.key, ...child.val() }; });
+      }
+
+      // Detect transitions: pending → approved
+      for (const [key, newTxn] of Object.entries(newTxnMap)) {
+        const prev = previousTxnSnapshot[key];
+        if (prev && prev.status === 'pending' && (newTxn.status === 'approved' || newTxn.status === 'completed')) {
+          if (newTxn.type === 'debit') {
+            // Admin approved this transfer — now deduct the balance
+            const current = parseFloat(userData.balance || 0);
+            const deducted = parseFloat(newTxn.amount || 0);
+            const newBal = parseFloat((current - deducted).toFixed(2));
+            await db.ref('users/' + currentUser.uid + '/balance').set(newBal);
+            userData.balance = newBal;
+            showToast(`Transfer of ${formatMoney(deducted)} approved & debited`);
+          } else if (newTxn.type === 'credit') {
+            // Admin approved a deposit — notify user (balance already updated server-side by admin)
+            showToast(`Deposit of ${formatMoney(newTxn.amount)} has been approved!`);
+          }
+        }
+      }
+      previousTxnSnapshot = { ...newTxnMap };
+
+      transactions = Object.values(newTxnMap);
+      transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+      renderHomeTransactions();
+      renderAllTransactions();
+      updateBalanceDisplay();
+      renderSpendChart();
+    });
+
+    // Listen for real-time admin-controlled deposit settings (bank + crypto details)
+    db.ref('depositSettings').on('value', snap => {
+      depositSettings = snap.exists() ? snap.val() : {};
+      populateDepositPage();
+    });
+
+  } catch (e) {
+    console.error(e);
+    showToast('Error loading account data');
+  }
+}
+
+function initDashboard() {
+  applyTranslations();
+  // Date
+  const now = new Date();
+  document.getElementById('pageDate').textContent = now.toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // Sidebar user info
+  const initials = ((userData.firstName || '?')[0] + (userData.lastName || '?')[0]).toUpperCase();
+  document.getElementById('sidebarAvatar').textContent = initials;
+  document.getElementById('sidebarName').textContent = userData.fullName || '—';
+  document.getElementById('sidebarEmail').textContent = userData.email || '—';
+
+  updateBalanceDisplay();
+  renderHomeTransactions();
+  renderAllTransactions();
+  renderProfile();
+  populateDepositPage();
+
+  populateAccountInfoCard();
+  setTimeout(renderSpendChart, 200); // wait for canvas to be visible
+
+  // Dark mode persistence
+  const savedTheme = localStorage.getItem('qd_theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('darkModeToggle').checked = true;
+  }
+}
+
+function updateBalanceDisplay() {
+  const balance = parseFloat(userData.balance || 0);
+  const sym = getCurrencySymbol();
+  const code = getCurrencyCode();
+  document.getElementById('balanceDisplay').textContent = formatMoney(balance);
+  document.getElementById('balanceCurrencyLabel').textContent = code + ' · ' + (userData.accountType || 'Personal Account');
+  document.getElementById('acctNumDisplay').textContent = userData.accountNumber || '—';
+
+  // Monthly in/out
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  let totalIn = 0, totalOut = 0;
+  transactions.forEach(t => {
+    const d = new Date(t.date);
+    if (d.getMonth() === thisMonth && d.getFullYear() === thisYear && (t.status === 'completed' || t.status === 'approved' || !t.status)) {
+      if (t.type === 'credit') totalIn += parseFloat(t.amount);
+      else if (t.type === 'debit') totalOut += parseFloat(t.amount);
+    }
+  });
+  document.getElementById('totalIn').textContent = formatMoney(totalIn);
+  document.getElementById('totalOut').textContent = formatMoney(totalOut);
+}
+
+// ========== TRANSACTIONS RENDER ==========
+function txnIconClass(t) {
+  if (t.type === 'credit') return 'credit';
+  if (t.status === 'pending') return 'pending';
+  return 'debit';
+}
+
+function txnIconSymbol(t) {
+  if (t.type === 'credit') return '#ic-arrow-down';
+  if (t.type === 'debit') return '#ic-send';
+  return '#ic-refresh';
+}
+
+function buildTxnHTML(t) {
+  const ic = txnIconClass(t);
+  const sym = getCurrencySymbol();
+  const sign = t.type === 'credit' ? '+' : '-';
+  const dateStr = new Date(t.date).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  const txnJson = JSON.stringify(t).replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+  return `
+    <div class="txn-item" onclick='showReceipt(${JSON.stringify(t)})'>
+      <div class="txn-icon ${ic}"><svg class="icon"><use href="${txnIconSymbol(t)}"/></svg></div>
+      <div class="txn-info">
+        <p class="txn-name">${t.description || 'Transaction'}</p>
+        <p class="txn-meta">${t.method || ''} · ${dateStr}</p>
+      </div>
+      <div class="txn-amount">
+        <p class="amount ${ic}">${sign}${sym}${parseFloat(t.amount).toFixed(2)}</p>
+        <p class="status">${t.status || 'completed'}</p>
+      </div>
+    </div>`;
+}
+
+function renderHomeTransactions() {
+  const el = document.getElementById('homeTxnList');
+  const recent = transactions.slice(0, 5);
+  if (!recent.length) {
+    el.innerHTML = '<div class="empty-state"><svg class="icon"><use href="#ic-history"/></svg><p>No transactions yet</p></div>';
+    return;
+  }
+  el.innerHTML = recent.map(buildTxnHTML).join('');
+}
+
+function renderAllTransactions() {
+  const el = document.getElementById('allTxnList');
+  const filter = document.getElementById('txnFilter').value;
+  let list = [...transactions];
+  if (filter !== 'all') list = list.filter(t => t.type === filter || t.status === filter);
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><svg class="icon"><use href="#ic-history"/></svg><p>No transactions found</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(buildTxnHTML).join('');
+}
+
+// ========== BALANCE HELPERS ==========
+async function deductBalance(amount) {
+  const current = parseFloat(userData.balance || 0);
+  const newBal = current - parseFloat(amount);
+  await db.ref('users/' + currentUser.uid + '/balance').set(parseFloat(newBal.toFixed(2)));
+  userData.balance = newBal;
+  updateBalanceDisplay();
+}
+
+async function addTransaction(txn) {
+  await db.ref('transactions/' + currentUser.uid).push({
+    ...txn,
+    date: new Date().toISOString(),
+    status: txn.status || 'completed'
+  });
+}
+
+// ========== SEND MONEY ==========
+function selectTransferType(type) {
+  transferType = type;
+  ['local','wire','crypto'].forEach(t => {
+    document.getElementById('tt-' + t).classList.toggle('selected', t === type);
+    document.getElementById('form-' + t).style.display = t === type ? 'block' : 'none';
+  });
+}
+
+function clearSendForm() {
+  ['localAcctNo','localName','localBank','localAmount','localNarration',
+   'wireName','wireBank','wireIBAN','wireSWIFT','wireCountry','wireAmount',
+   'cryptoAddress','cryptoAmount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('sendAlert').innerHTML = '';
+}
+
+function processSend() {
+  const balance = parseFloat(userData.balance || 0);
+  let amount = 0, description = '', valid = true, alertEl = document.getElementById('sendAlert');
+  alertEl.innerHTML = '';
+
+  if (transferType === 'local') {
+    const acct = document.getElementById('localAcctNo').value.trim();
+    const name = document.getElementById('localName').value.trim();
+    const bank = document.getElementById('localBank').value.trim();
+    amount = parseFloat(document.getElementById('localAmount').value);
+    const narr = document.getElementById('localNarration').value.trim();
+    if (!acct || !name || !bank || !amount || amount <= 0) {
+      alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please fill all required fields</div>';
+      return;
+    }
+    description = `Transfer to ${name} (${bank})`;
+  } else if (transferType === 'wire') {
+    const name = document.getElementById('wireName').value.trim();
+    const bank = document.getElementById('wireBank').value.trim();
+    const iban = document.getElementById('wireIBAN').value.trim();
+    const swift = document.getElementById('wireSWIFT').value.trim();
+    const country = document.getElementById('wireCountry').value.trim();
+    amount = parseFloat(document.getElementById('wireAmount').value);
+    if (!name || !bank || !iban || !swift || !country || !amount || amount <= 0) {
+      alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please fill all required fields</div>';
+      return;
+    }
+    description = `International Wire to ${name} - ${country}`;
+  } else if (transferType === 'crypto') {
+    const coin = document.getElementById('cryptoCoin').value;
+    const addr = document.getElementById('cryptoAddress').value.trim();
+    amount = parseFloat(document.getElementById('cryptoAmount').value);
+    if (!coin || !addr || !amount || amount <= 0) {
+      alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please fill all required fields</div>';
+      return;
+    }
+    description = `Crypto (${coin}) to ${addr.slice(0,12)}…`;
+  }
+
+  if (amount > balance) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Insufficient balance. Available: ' + formatMoney(balance) + '</div>';
+    return;
+  }
+
+  // Show confirm modal
+  const sym = getCurrencySymbol();
+  document.getElementById('confirmModalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-icon teal"><svg class="icon"><use href="#ic-send"/></svg></div>
+      <div><p class="modal-title">Confirm Transfer</p><p class="modal-sub">Review before sending</p></div>
+    </div>
+    <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--ink2)">Amount</span>
+        <strong style="font-size:15px;color:var(--danger)">${formatMoney(amount)}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--ink2)">Description</span>
+        <strong style="font-size:13px;text-align:right;max-width:200px">${description}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:13px;color:var(--ink2)">Status</span>
+        <span class="badge badge-warning">Pending Admin Approval</span>
+      </div>
+    </div>
+    <div class="alert alert-warning" style="margin-bottom:16px">
+      <svg class="icon"><use href="#ic-alert"/></svg>
+      Your balance will only be debited once our team approves this transfer.
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="executeTransfer(${amount},'${description.replace(/'/g,"\\'")}')">
+        <svg class="icon"><use href="#ic-send"/></svg> Confirm & Send
+      </button>
+    </div>`;
+  processSendWithPin(amount, description);
+}
+
+async function executeTransfer(amount, description) {
+  closeModal('confirmModal');
+  try {
+    await addTransaction({ type: 'debit', amount, description, method: transferType.charAt(0).toUpperCase() + transferType.slice(1) + ' Transfer', status: 'pending' });
+    clearSendForm();
+    showSuccessModal('Transfer Submitted', `Your transfer of ${formatMoney(amount)} is pending approval. Your balance will be updated once it is approved by our team.`);
+  } catch (e) {
+    showToast('Transfer failed: ' + e.message);
+  }
+}
+
+// ========== DEPOSIT ==========
+let depositSettings = {};
+
+function populateDepositPage() {
+  document.getElementById('depAcctName').textContent = depositSettings.bankAccountName || '—';
+  document.getElementById('depAcctNum').textContent = depositSettings.bankAccountNumber || '—';
+  document.getElementById('depBankName').textContent = depositSettings.bankName || 'Quantum Digital Bank';
+  document.getElementById('depRoutingCode').textContent = depositSettings.routingCode || '—';
+  updateCryptoAddress();
+}
+
+// Wire up deposit method radio buttons
+document.querySelectorAll('input[name="depositMethod"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    ['bank','crypto'].forEach(m => {
+      const el = document.getElementById('dep-' + m + '-form');
+      if (el) el.style.display = radio.value === m ? 'block' : 'none';
+    });
+  });
+});
+
+function updateCryptoAddress() {
+  const coinSel = document.getElementById('depCryptoCoin');
+  if (!coinSel) return;
+  const coin = coinSel.value;
+  const addresses = depositSettings.cryptoAddresses || {};
+  document.getElementById('cryptoDepAddr').textContent = addresses[coin] || '—';
+}
+function copyCryptoAddr() {
+  const addr = document.getElementById('cryptoDepAddr').textContent;
+  if (!addr || addr === '—') return;
+  navigator.clipboard.writeText(addr).then(() => showToast('Address copied!'));
+}
+
+async function submitDeposit(method) {
+  let amount;
+  if (method === 'Bank Transfer') {
+    amount = parseFloat(document.getElementById('depBankAmount').value);
+  } else if (method === 'Crypto') {
+    amount = parseFloat(document.getElementById('depCryptoAmt').value);
+  }
+  if (!amount || amount <= 0) {
+    showToast('Please enter a valid amount');
+    return;
+  }
+  try {
+    await addTransaction({ type: 'credit', amount, description: `${method} Deposit`, method, status: 'pending' });
+    showSuccessModal('Deposit Request Submitted', `Your ${method} deposit of ${formatMoney(amount)} has been received and is pending approval. Your balance will be updated once it is approved by our team.`);
+  } catch (e) {
+    showToast('Deposit submission failed: ' + e.message);
+  }
+}
+
+// ========== PROFILE ==========
+function renderProfile() {
+  const u = userData;
+  const initials = ((u.firstName || '?')[0] + (u.lastName || '?')[0]).toUpperCase();
+  document.getElementById('profileAvatar').textContent = initials;
+  document.getElementById('profileName').textContent = u.fullName || '—';
+  document.getElementById('profileEmail').textContent = u.email || '—';
+  document.getElementById('profileAcct').textContent = u.accountNumber || '—';
+
+  const fields = [
+    { section: 'Personal Information', items: [
+      { label: 'First Name', value: u.firstName }, { label: 'Last Name', value: u.lastName },
+      { label: 'Date of Birth', value: u.dob }, { label: 'Gender', value: u.gender }
+    ]},
+    { section: 'Contact Details', items: [
+      { label: 'Email Address', value: u.email }, { label: 'Phone Number', value: u.phone },
+      { label: 'Country', value: u.country }, { label: 'Street Address', value: u.address },
+      { label: 'City', value: u.city }, { label: 'Postal Code', value: u.postcode }
+    ]},
+    { section: 'Account Information', items: [
+      { label: 'Account Type', value: u.accountType }, { label: 'Currency', value: u.currency },
+      { label: 'Employment Status', value: u.employment }, { label: 'Occupation', value: u.occupation }
+    ]}
+  ];
+
+  let html = '';
+  fields.forEach(sec => {
+    html += `<p class="pf-section-title">${sec.section}</p><div class="pf-grid">`;
+    sec.items.forEach(item => {
+      html += `<div class="pf-field"><label>${item.label}</label><p>${item.value || '—'}</p></div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('profileFields').innerHTML = html;
+}
+
+function openEditProfile() {
+  document.getElementById('ep-firstName').value = userData.firstName || '';
+  document.getElementById('ep-lastName').value = userData.lastName || '';
+  document.getElementById('ep-phone').value = userData.phone || '';
+  document.getElementById('ep-address').value = userData.address || '';
+  document.getElementById('ep-city').value = userData.city || '';
+  document.getElementById('ep-occupation').value = userData.occupation || '';
+  document.getElementById('editProfileAlert').innerHTML = '';
+  openModal('editProfileModal');
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving…';
+  const updates = {
+    firstName: document.getElementById('ep-firstName').value.trim(),
+    lastName: document.getElementById('ep-lastName').value.trim(),
+    phone: document.getElementById('ep-phone').value.trim(),
+    address: document.getElementById('ep-address').value.trim(),
+    city: document.getElementById('ep-city').value.trim(),
+    occupation: document.getElementById('ep-occupation').value.trim(),
+  };
+  updates.fullName = updates.firstName + ' ' + updates.lastName;
+  try {
+    await db.ref('users/' + currentUser.uid).update(updates);
+    userData = { ...userData, ...updates };
+    renderProfile();
+    document.getElementById('sidebarName').textContent = updates.fullName;
+    document.getElementById('sidebarAvatar').textContent = (updates.firstName[0] + updates.lastName[0]).toUpperCase();
+    closeModal('editProfileModal');
+    showToast('Profile updated successfully');
+  } catch (e) {
+    document.getElementById('editProfileAlert').innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>' + e.message + '</div>';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="icon"><use href="#ic-check"/></svg> Save Changes';
+}
+
+// ========== CHANGE PASSWORD ==========
+async function changePassword() {
+  const current = document.getElementById('cpw-current').value;
+  const newPw = document.getElementById('cpw-new').value;
+  const confirm = document.getElementById('cpw-confirm').value;
+  const alertEl = document.getElementById('changePwAlert');
+  alertEl.innerHTML = '';
+  if (!current || !newPw || !confirm) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Fill all fields</div>'; return; }
+  if (newPw.length < 8) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>New password must be at least 8 characters</div>'; return; }
+  if (newPw !== confirm) { alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Passwords do not match</div>'; return; }
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, current);
+    await currentUser.reauthenticateWithCredential(cred);
+    await currentUser.updatePassword(newPw);
+    closeModal('changePwModal');
+    showToast('Password changed successfully');
+  } catch (e) {
+    const msgs = { 'auth/wrong-password': 'Current password is incorrect', 'auth/weak-password': 'New password is too weak' };
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>' + (msgs[e.code] || e.message) + '</div>';
+  }
+}
+
+// ========== COPY ACCOUNT NUMBER ==========
+function copyAccountNumber() {
+  const acct = userData.accountNumber || '';
+  if (!acct) return;
+  navigator.clipboard.writeText(acct).then(() => showToast('Account number copied!'));
+}
+
+// ========== SETTINGS ==========
+function toggleDarkMode(el) {
+  const theme = el.checked ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('qd_theme', theme);
+  setTimeout(renderSpendChart, 100);
+}
+
+function signOut() {
+  auth.signOut().then(() => window.location.href = 'login.html');
+}
+
+// ========== NAVIGATION ==========
+
+function navigate(page) {
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i => {
+    if (i.getAttribute('onclick') && i.getAttribute('onclick').includes("'" + page + "'")) i.classList.add('active');
+  });
+  document.getElementById('pageTitle').textContent = t(pageTitleKeys[page]) || page;
+  closeSidebar();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (page === 'deposit') populateDepositPage();
+  if (page === 'profile') renderProfile();
+  if (page === 'history') renderAllTransactions();
+  if (page === 'home') { populateAccountInfoCard(); setTimeout(renderSpendChart, 150); }
+}
+
+// ========== SIDEBAR TOGGLE ==========
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const b = document.getElementById('sidebarBackdrop');
+  s.classList.toggle('open');
+  b.style.display = s.classList.contains('open') ? 'block' : 'none';
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').style.display = 'none';
+}
+
+// ========== NOTIFICATION PANEL ==========
+function toggleNotifPanel() {
+  document.getElementById('notifPanel').classList.toggle('open');
+  document.getElementById('notifDot').style.display = 'none';
+}
+
+// ========== MODAL HELPERS ==========
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => {
+    if (e.target === ov) { closeModal(ov.id); }
+  });
+});
+
+function showSuccessModal(title, msg) {
+  document.getElementById('confirmModalContent').innerHTML = `
+    <div class="success-anim">
+      <div class="s-icon"><svg class="icon"><use href="#ic-check-circle"/></svg></div>
+      <h3>${title}</h3>
+      <p>${msg}</p>
+    </div>
+    <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="closeModal('confirmModal');navigate('home')">
+      Back to Overview
+    </button>`;
+  openModal('confirmModal');
+}
+
+// ========== TOAST ==========
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3000);
+}
+
+// ========== DEPOSIT METHOD SHOW/HIDE init ==========
+document.addEventListener('DOMContentLoaded', () => {
+  // Only crypto form needs hiding initially (bank is default/shown)
+  const cryptoForm = document.getElementById('dep-crypto-form');
+  if (cryptoForm) cryptoForm.style.display = 'none';
+});
+
+// ========== SPENDING CHART ==========
+let spendChart = null;
+
+function renderSpendChart() {
+  const ctx = document.getElementById('spendChart');
+  if (!ctx) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  const labelColor = isDark ? '#9e91ad' : '#9e91ad';
+
+  // Build last 7 days labels + debit amounts
+  const days = [];
+  const credits = [];
+  const debits = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toLocaleDateString('en-GB', { weekday: 'short' }));
+    const dayStr = d.toISOString().slice(0, 10);
+    let c = 0, db = 0;
+    transactions.forEach(t => {
+      if (t.date && t.date.slice(0, 10) === dayStr && t.status !== 'pending' && t.status !== 'declined' && t.status !== 'rejected') {
+        if (t.type === 'credit') c += parseFloat(t.amount || 0);
+        else db += parseFloat(t.amount || 0);
+      }
+    });
+    credits.push(c);
+    debits.push(db);
+  }
+
+  if (spendChart) { spendChart.destroy(); spendChart = null; }
+
+  spendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [
+        {
+          label: 'Credits',
+          data: credits,
+          backgroundColor: 'rgba(17,184,159,0.7)',
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+        {
+          label: 'Debits',
+          data: debits,
+          backgroundColor: 'rgba(229,72,77,0.6)',
+          borderRadius: 5,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: labelColor, font: { size: 11, weight: '700' }, boxWidth: 10, boxHeight: 10, usePointStyle: true }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + formatMoney(ctx.raw)
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: labelColor, font: { size: 11 } } },
+        y: { grid: { color: gridColor }, ticks: { color: labelColor, font: { size: 11 }, callback: v => getCurrencySymbol() + v } }
+      }
+    }
+  });
+}
+
+// ========== ACCOUNT INFO CARD ==========
+function populateAccountInfoCard() {
+  const u = userData;
+  const el = id => document.getElementById(id);
+  if (el('infoAcctType')) el('infoAcctType').textContent = u.accountType || '—';
+  if (el('infoCurrency')) el('infoCurrency').textContent = u.currency || '—';
+  if (el('infoCountry')) el('infoCountry').textContent = u.country || '—';
+  if (el('infoAcctNum')) el('infoAcctNum').textContent = u.accountNumber || '—';
+  if (el('infoSince')) {
+    const d = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+    el('infoSince').textContent = d;
+  }
+  if (el('infoStatus')) {
+    el('infoStatus').className = u.blocked ? 'badge badge-danger' : 'badge badge-success';
+    el('infoStatus').textContent = u.blocked ? 'Suspended' : 'Active';
+  }
+}
+
+// ========== RECEIPT MODAL ==========
+function showReceipt(txn) {
+  const sym = getCurrencySymbol();
+  const dateStr = new Date(txn.date).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const sign = txn.type === 'credit' ? '+' : '-';
+  const color = txn.type === 'credit' ? 'var(--success)' : 'var(--danger)';
+  document.getElementById('confirmModalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-icon ${txn.type === 'credit' ? 'teal' : 'blue'}">
+        <svg class="icon"><use href="${txn.type === 'credit' ? '#ic-arrow-down' : '#ic-send'}"/></svg>
+      </div>
+      <div><p class="modal-title">Transaction Receipt</p><p class="modal-sub">${txn.method || 'Transfer'}</p></div>
+    </div>
+    <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px">
+      <div style="text-align:center;padding:14px 0 18px;border-bottom:1px solid var(--border);margin-bottom:14px">
+        <p style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Amount</p>
+        <p style="font-size:32px;font-weight:900;color:${color}">${sign}${sym}${parseFloat(txn.amount).toFixed(2)}</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between"><span style="font-size:12.5px;color:var(--ink2)">Description</span><strong style="font-size:13px;text-align:right;max-width:200px">${txn.description || '—'}</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-size:12.5px;color:var(--ink2)">Date & Time</span><strong style="font-size:13px">${dateStr}</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-size:12.5px;color:var(--ink2)">Method</span><strong style="font-size:13px">${txn.method || '—'}</strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-size:12.5px;color:var(--ink2)">Status</span>
+          <span class="badge ${(txn.status === 'completed' || txn.status === 'approved') ? 'badge-success' : txn.status === 'pending' ? 'badge-warning' : txn.status === 'declined' || txn.status === 'rejected' ? 'badge-danger' : 'badge-info'}">${txn.status || 'completed'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between"><span style="font-size:12.5px;color:var(--ink2)">Reference</span><strong style="font-size:11px;color:var(--ink3)">${txn.id ? txn.id.slice(-10).toUpperCase() : 'N/A'}</strong></div>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="closeModal('confirmModal')">
+      <svg class="icon"><use href="#ic-check"/></svg> Done
+    </button>`;
+  openModal('confirmModal');
+}
+
+// ========== TRANSACTION PIN ==========
+
+// Pending transfer args saved while PIN modal is open
+let _pendingTransferArgs = null;
+
+// Called instead of opening confirmModal directly — checks PIN first
+function processSendWithPin(amount, description) {
+  _pendingTransferArgs = { amount, description };
+  if (!userData.transactionPin) {
+    // No PIN set yet — show setup flow
+    showSetPinModal();
+  } else {
+    // PIN exists — ask user to enter it
+    showEnterPinModal();
+  }
+}
+
+// ---- SET PIN (first time) ----
+function showSetPinModal() {
+  document.getElementById('txnPinModalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-icon teal" style="width:44px;height:44px;border-radius:12px;background:var(--teal-bg);color:var(--teal-d);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+        <svg class="icon" style="width:20px;height:20px"><use href="#ic-lock"/></svg>
+      </div>
+      <div>
+        <p class="modal-title">Create Transaction PIN</p>
+        <p class="modal-sub">Set a 4-digit PIN to secure your transfers</p>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:18px;line-height:1.6">
+      You haven't set a transaction PIN yet. Please create one — you'll need it every time you send money.
+    </p>
+    <div class="form-group">
+      <label style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px;display:block">New PIN (4 digits)</label>
+      <div class="pin-inputs" id="setPinInputs">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'setPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'setPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'setPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'setPinInputs')" onkeydown="pinBoxBack(event,this)">
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px;display:block">Confirm PIN</label>
+      <div class="pin-inputs" id="confirmPinInputs">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'confirmPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'confirmPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'confirmPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'confirmPinInputs')" onkeydown="pinBoxBack(event,this)">
+      </div>
+    </div>
+    <div id="pinAlert" style="margin-bottom:12px"></div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="closeTxnPinModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTransactionPin()">
+        <svg class="icon"><use href="#ic-check"/></svg> Save PIN & Continue
+      </button>
+    </div>`;
+  openModal('txnPinModal');
+  // Focus first box
+  setTimeout(() => {
+    const first = document.querySelector('#setPinInputs .pin-box');
+    if (first) first.focus();
+  }, 100);
+}
+
+async function saveTransactionPin() {
+  const pin = getPinValue('setPinInputs');
+  const confirm = getPinValue('confirmPinInputs');
+  const alertEl = document.getElementById('pinAlert');
+  alertEl.innerHTML = '';
+  if (pin.length < 4) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please enter a full 4-digit PIN</div>';
+    return;
+  }
+  if (!/^\d{4}$/.test(pin)) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>PIN must be 4 numeric digits</div>';
+    return;
+  }
+  if (pin !== confirm) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>PINs do not match. Please try again</div>';
+    clearPinBoxes('confirmPinInputs');
+    return;
+  }
+  try {
+    await db.ref('users/' + currentUser.uid + '/transactionPin').set(pin);
+    userData.transactionPin = pin;
+    closeModal('txnPinModal');
+    showToast('Transaction PIN set successfully');
+    // Now proceed with the transfer confirm
+    if (_pendingTransferArgs) openTransferConfirm(_pendingTransferArgs.amount, _pendingTransferArgs.description);
+  } catch (e) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>' + e.message + '</div>';
+  }
+}
+
+// ---- ENTER PIN (subsequent transfers) ----
+function showEnterPinModal() {
+  document.getElementById('txnPinModalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-icon teal" style="width:44px;height:44px;border-radius:12px;background:var(--teal-bg);color:var(--teal-d);display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+        <svg class="icon" style="width:20px;height:20px"><use href="#ic-lock"/></svg>
+      </div>
+      <div>
+        <p class="modal-title">Enter Transaction PIN</p>
+        <p class="modal-sub">Confirm your identity to proceed</p>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:18px">Enter your 4-digit transaction PIN to authorise this transfer.</p>
+    <div class="form-group">
+      <div class="pin-inputs" id="enterPinInputs">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'enterPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'enterPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'enterPinInputs')" onkeydown="pinBoxBack(event,this)">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" oninput="pinBoxMove(this,'enterPinInputs')" onkeydown="pinBoxBack(event,this)">
+      </div>
+    </div>
+    <div id="pinAlert" style="margin-bottom:12px"></div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="closeTxnPinModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="verifyTransactionPin()">
+        <svg class="icon"><use href="#ic-send"/></svg> Confirm Transfer
+      </button>
+    </div>`;
+  openModal('txnPinModal');
+  setTimeout(() => {
+    const first = document.querySelector('#enterPinInputs .pin-box');
+    if (first) first.focus();
+  }, 100);
+}
+
+function verifyTransactionPin() {
+  const entered = getPinValue('enterPinInputs');
+  const alertEl = document.getElementById('pinAlert');
+  alertEl.innerHTML = '';
+  if (entered.length < 4) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Please enter your 4-digit PIN</div>';
+    return;
+  }
+  if (entered !== userData.transactionPin) {
+    alertEl.innerHTML = '<div class="alert alert-danger"><svg class="icon"><use href="#ic-alert"/></svg>Incorrect PIN. Please try again</div>';
+    clearPinBoxes('enterPinInputs');
+    return;
+  }
+  closeModal('txnPinModal');
+  if (_pendingTransferArgs) openTransferConfirm(_pendingTransferArgs.amount, _pendingTransferArgs.description);
+}
+
+// ---- Open the existing transfer confirm modal after PIN passes ----
+function openTransferConfirm(amount, description) {
+  const sym = getCurrencySymbol();
+  document.getElementById('confirmModalContent').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-icon teal"><svg class="icon"><use href="#ic-send"/></svg></div>
+      <div><p class="modal-title">Confirm Transfer</p><p class="modal-sub">Review before sending</p></div>
+    </div>
+    <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--ink2)">Amount</span>
+        <strong style="font-size:15px;color:var(--danger)">${sym}${parseFloat(amount).toFixed(2)}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--ink2)">Description</span>
+        <strong style="font-size:13px;text-align:right;max-width:200px">${description}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:13px;color:var(--ink2)">Status</span>
+        <span class="badge badge-warning">Pending Admin Approval</span>
+      </div>
+    </div>
+    <div class="alert alert-warning" style="margin-bottom:16px">
+      <svg class="icon"><use href="#ic-alert"/></svg>
+      Your balance will only be debited once our team approves this transfer.
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="executeTransfer(${amount},'${description.replace(/'/g, "\\'")}')">
+        <svg class="icon"><use href="#ic-send"/></svg> Confirm & Send
+      </button>
+    </div>`;
+  openModal('confirmModal');
+}
+
+// ---- PIN Box Helpers ----
+function getPinValue(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' .pin-box'))
+    .map(i => i.value).join('');
+}
+
+function clearPinBoxes(containerId) {
+  document.querySelectorAll('#' + containerId + ' .pin-box').forEach(i => i.value = '');
+  const first = document.querySelector('#' + containerId + ' .pin-box');
+  if (first) first.focus();
+}
+
+function pinBoxMove(el, containerId) {
+  el.value = el.value.replace(/\D/g, '').slice(0, 1);
+  if (el.value) {
+    const boxes = Array.from(document.querySelectorAll('#' + containerId + ' .pin-box'));
+    const idx = boxes.indexOf(el);
+    if (idx < boxes.length - 1) boxes[idx + 1].focus();
+  }
+}
+
+function pinBoxBack(e, el) {
+  if (e.key === 'Backspace' && !el.value) {
+    const boxes = Array.from(el.closest('.pin-inputs').querySelectorAll('.pin-box'));
+    const idx = boxes.indexOf(el);
+    if (idx > 0) { boxes[idx - 1].value = ''; boxes[idx - 1].focus(); }
+  }
+}
+
+function closeTxnPinModal() {
+  closeModal('txnPinModal');
+  _pendingTransferArgs = null;
+}
+
+</script>
+</body>
+</html>

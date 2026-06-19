@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Digital — Admin Login</title>
+<style>
+:root {
+  --bg: #0f0d1a;
+  --bg2: #181528;
+  --surface: #1e1b30;
+  --surface2: #252240;
+  --border: #2e2a45;
+  --ink: #f0eaf8;
+  --ink2: #b0a8c8;
+  --ink3: #6b6288;
+  --teal: #28e0c5;
+  --teal-d: #11b89f;
+  --teal-bg: #0d3330;
+  --danger: #e5484d;
+  --danger-bg: #2e1012;
+  --navy: #0a0817;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-lg: 0 20px 60px -20px rgba(0,0,0,0.6);
+  --transition: 0.2s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-image: radial-gradient(circle at 20% 20%, rgba(40,224,197,0.08), transparent 40%),
+                     radial-gradient(circle at 80% 80%, rgba(21,89,255,0.08), transparent 40%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 32px 28px;
+}
+
+.brand { text-align: center; margin-bottom: 26px; }
+.brand h1 {
+  font-size: 18px; font-weight: 900; letter-spacing: 0.08em; color: var(--teal);
+}
+.brand p { font-size: 11px; color: var(--ink3); margin-top: 4px; }
+
+.admin-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(229,72,77,0.15); color: var(--danger);
+  border: 1px solid rgba(229,72,77,0.3);
+  border-radius: 6px; padding: 4px 10px; font-size: 10px;
+  font-weight: 800; letter-spacing: .06em; margin-top: 10px;
+}
+
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-size: 12px; font-weight: 700;
+  color: var(--ink2); margin-bottom: 6px;
+}
+.field input {
+  width: 100%;
+  padding: 11px 13px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.field input:focus { border-color: var(--teal-d); }
+.field input::placeholder { color: var(--ink3); }
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  background: var(--teal-d);
+  color: #04241f;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: filter var(--transition);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.login-btn:hover { filter: brightness(1.08); }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.alert {
+  display: none;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(229,72,77,0.3);
+}
+.alert.show { display: block; }
+
+.spinner {
+  width: 15px; height: 15px;
+  border: 2px solid rgba(4,36,31,0.3);
+  border-top-color: #04241f;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+.spinner.show { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.foot-note {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 11px;
+  color: var(--ink3);
+}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="brand">
+    <h1>QUANTUM DIGITAL</h1>
+    <p>Internal Admin Console</p>
+    <div class="admin-badge">🔒 RESTRICTED ACCESS</div>
+  </div>
+
+  <div class="alert" id="loginAlert"></div>
+
+  <form id="adminLoginForm" autocomplete="off">
+    <div class="field">
+      <label for="adminEmail">Admin Email</label>
+      <input type="email" id="adminEmail" placeholder="admin@gmail.com" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label for="adminPassword">Password</label>
+      <input type="password" id="adminPassword" placeholder="••••••••" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="login-btn" id="loginBtn">
+      <span class="spinner" id="loginSpinner"></span>
+      <span id="loginBtnText">Sign In to Admin Panel</span>
+    </button>
+  </form>
+
+  <p class="foot-note">Authorized administrators only. All access attempts are logged.</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+// ========== FIREBASE CONFIG ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyApsP3dmRBiBQ1_1Rj7HYaa-ZO9RuwbbG4",
+  authDomain: "quantum-bank-fe2d2.firebaseapp.com",
+  projectId: "quantum-bank-fe2d2",
+  storageBucket: "quantum-bank-fe2d2.firebasestorage.app",
+  messagingSenderId: "29002383788",
+  appId: "1:29002383788:web:109cff0125fba69f107a09"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// Only this account may ever reach the admin dashboard.
+const ALLOWED_ADMIN_EMAIL = 'admin@gmail.com';
+
+const form = document.getElementById('adminLoginForm');
+const alertEl = document.getElementById('loginAlert');
+const btn = document.getElementById('loginBtn');
+const btnText = document.getElementById('loginBtnText');
+const spinner = document.getElementById('loginSpinner');
+
+function showAlert(msg) {
+  alertEl.textContent = msg;
+  alertEl.classList.add('show');
+}
+function hideAlert() {
+  alertEl.classList.remove('show');
+}
+function setLoading(loading) {
+  btn.disabled = loading;
+  spinner.classList.toggle('show', loading);
+  btnText.textContent = loading ? 'Signing in…' : 'Sign In to Admin Panel';
+}
+
+// If already signed in as the admin, skip straight to the dashboard.
+// (We don't auto-redirect on every auth state — only once, on initial load —
+// so a failed/non-admin session doesn't bounce the user back and forth.)
+auth.onAuthStateChanged(user => {
+  if (user && (user.email || '').toLowerCase() === ALLOWED_ADMIN_EMAIL) {
+    window.location.href = 'admindashboard.html';
+  }
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideAlert();
+
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPassword').value;
+
+  // Quick client-side gate: only the designated admin email is even allowed
+  // to attempt sign-in. The real security boundary is Firebase Auth itself
+  // (and your database rules) — this just avoids needless requests for any
+  // other email.
+  if (email.toLowerCase() !== ALLOWED_ADMIN_EMAIL) {
+    showAlert('This account is not authorized to access the admin panel.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const cred = await auth.signInWithEmailAndPassword(email, password);
+    if ((cred.user.email || '').toLowerCase() !== ALLOWED_ADMIN_EMAIL) {
+      await auth.signOut();
+      showAlert('This account is not authorized to access the admin panel.');
+      setLoading(false);
+      return;
+    }
+    window.location.href = 'admindashboard.html';
+  } catch (err) {
+    setLoading(false);
+    let msg = 'Sign in failed. Please check your credentials and try again.';
+    if (err && err.code) {
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        msg = 'Incorrect email or password.';
+      } else if (err.code === 'auth/too-many-requests') {
+        msg = 'Too many attempts. Please wait a moment and try again.';
+      } else if (err.code === 'auth/network-request-failed') {
+        msg = 'Network error. Check your connection and try again.';
+      }
+    }
+    showAlert(msg);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Digital — Log in</title>
+<style>
+  :root{
+    --bg: #f6ebe2;
+    --ink: #221a3f;
+    --ink-soft: #6b6480;
+    --card-bg: #ffffff;
+    --field-bg: #fcfaf8;
+    --option-bg: #edeef1;
+    --option-border: #e2e3e8;
+    --teal: #28e0c5;
+    --teal-dark: #11b89f;
+    --teal-bg: #e8fbf7;
+    --blue: #1559ff;
+    --blue-bg: #eaf1ff;
+    --danger: #e5484d;
+    --danger-bg: #fdeceb;
+    --navy-card: #1d1a36;
+  }
+
+  *{ box-sizing: border-box; }
+  html, body{ margin:0; padding:0; }
+
+  body{
+    background: var(--bg);
+    font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(28px, 8vw, 70px) clamp(16px, 5vw, 40px) 60px;
+  }
+
+  svg.icon{ width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display:block; }
+
+  .page{ width:100%; max-width: 440px; }
+
+  .brand{
+    font-size: clamp(24px, 4.5vw, 32px);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-align: center;
+    margin: 0 0 6px;
+  }
+
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    margin: 0 0 clamp(26px, 5vw, 36px);
+  }
+
+  .card{
+    background: var(--card-bg);
+    border-radius: 22px;
+    padding: clamp(26px, 6vw, 38px);
+    box-shadow: 0 30px 60px -20px rgba(40, 25, 70, 0.16), 0 6px 18px -8px rgba(40, 25, 70, 0.07);
+  }
+
+  .panel{ display: none; }
+  .panel.active{ display: block; animation: fadeIn 0.25s ease; }
+
+  @keyframes fadeIn{
+    from{ opacity: 0; transform: translateY(6px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  .step-heading{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 4px;
+  }
+
+  .step-heading .icon-badge{
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--teal-bg);
+    color: var(--teal-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .step-heading .icon-badge svg{ width: 18px; height: 18px; }
+
+  .step-heading h2{
+    font-size: clamp(18px, 2.8vw, 22px);
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .step-sub{
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    margin: 0 0 22px;
+    padding-left: 44px;
+    line-height: 1.5;
+  }
+
+  .form-group{ margin-bottom: 18px; }
+
+  .form-group label{
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    margin-bottom: 7px;
+    color: var(--ink);
+  }
+
+  .input-wrap{ position: relative; }
+
+  .input-wrap .field-icon{
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-soft);
+    pointer-events: none;
+  }
+
+  .input-wrap .field-icon svg{ width: 16px; height: 16px; }
+
+  input[type="text"], input[type="email"], input[type="password"]{
+    width: 100%;
+    height: 46px;
+    padding: 0 14px 0 40px;
+    border: 1.5px solid var(--option-border);
+    border-radius: 11px;
+    background: var(--field-bg);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input:focus{
+    outline: none;
+    border-color: var(--teal-dark);
+    box-shadow: 0 0 0 4px var(--teal-bg);
+  }
+
+  input.has-toggle{ padding-right: 42px; }
+
+  .toggle-visibility{
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    display: flex;
+    padding: 4px;
+  }
+
+  .toggle-visibility svg{ width: 17px; height: 17px; }
+
+  .form-group.has-error input{
+    border-color: var(--danger);
+    background: var(--danger-bg);
+  }
+
+  .error-msg{
+    display: none;
+    font-size: 12px;
+    color: var(--danger);
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  .form-group.has-error .error-msg{ display: block; }
+
+  .row-between{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: -4px 0 22px;
+  }
+
+  .checkbox-inline{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .checkbox-inline input{
+    width: 15px;
+    height: 15px;
+    accent-color: var(--teal-dark);
+    cursor: pointer;
+  }
+
+  .link-action{
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--teal-dark);
+    text-decoration: underline;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+  }
+
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 11px;
+    font-size: 14.5px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .btn svg{ width: 16px; height: 16px; }
+
+  .btn-primary{
+    background: var(--teal);
+    color: var(--navy-card);
+    box-shadow: 0 10px 22px -8px rgba(17, 184, 159, 0.55);
+  }
+
+  .btn-primary:hover{ background: var(--teal-dark); color: #fff; transform: translateY(-1px); }
+
+  .btn-ghost{
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1.5px solid var(--option-border);
+  }
+
+  .btn-ghost:hover{ border-color: var(--ink); color: var(--ink); }
+
+  .btn-block{ width: 100%; margin-top: 4px; }
+
+  .btn:disabled{ opacity: 0.7; cursor: not-allowed; transform: none !important; }
+
+  .spinner{
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(34, 26, 63, 0.25);
+    border-top-color: var(--navy-card);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    flex: 0 0 auto;
+  }
+
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .form-banner-error, .form-banner-success{
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 14px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .form-banner-error{ background: var(--danger-bg); border: 1px solid var(--danger); color: var(--danger); }
+  .form-banner-success{ background: var(--teal-bg); border: 1px solid var(--teal-dark); color: var(--teal-dark); }
+  .form-banner-error.show, .form-banner-success.show{ display: flex; }
+  .form-banner-error svg, .form-banner-success svg{ width: 16px; height: 16px; margin-top: 1px; flex: 0 0 auto; }
+
+  .alt-action{
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin: 24px 0 0;
+  }
+
+  .alt-action a{ color: var(--teal-dark); font-weight: 700; text-decoration: underline; }
+
+  /* ---------------- success view ---------------- */
+  .success-wrap{ display: none; width: 100%; }
+  .success-wrap.active{ display: block; animation: fadeIn 0.3s ease; }
+
+  .success-box{ text-align: center; padding: clamp(36px, 7vw, 48px) clamp(24px, 6vw, 36px); }
+
+  .success-icon{
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--teal-bg);
+    color: var(--teal-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+  }
+
+  .success-icon svg{ width: 30px; height: 30px; }
+
+  .success-box h2{
+    font-size: clamp(20px, 4vw, 24px);
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+
+  .success-box p{
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  #welcomeMsg{ color: var(--ink); font-weight: 700; font-size: 16px; }
+
+  .loading-bar{
+    height: 6px;
+    border-radius: 4px;
+    background: var(--option-border);
+    overflow: hidden;
+    margin-top: 26px;
+  }
+
+  .loading-bar-fill{
+    height: 100%;
+    width: 0%;
+    background: var(--teal-dark);
+    border-radius: 4px;
+    transition: width 1.8s linear;
+  }
+
+  .loading-text{
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 360px){
+    .card{ padding: 22px 18px; border-radius: 18px; }
+    .step-sub{ padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m2 7 9 6 9-6"></path></symbol>
+      <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></symbol>
+      <symbol id="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.06"></path><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19"></path><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></symbol>
+      <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></symbol>
+      <symbol id="icon-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></symbol>
+      <symbol id="icon-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></symbol>
+      <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1.2 1-1.2 1.7v.5"></path><line x1="12" y1="17" x2="12" y2="17.01"></line></symbol>
+      <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
+    </defs>
+  </svg>
+
+  <div class="page">
+    <h1 class="brand">QUANTUM DIGITAL</h1>
+    <p class="subtitle">Log in to manage your account</p>
+
+    <!-- ===================== LOGIN CARD ===================== -->
+    <div class="card" id="loginCard">
+
+      <!-- LOGIN PANEL -->
+      <div class="panel active" id="loginPanel">
+        <div class="step-heading">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-user"></use></svg></span>
+          <h2>Welcome back</h2>
+        </div>
+        <p class="step-sub">Log in with the email and password you registered with</p>
+
+        <div class="form-banner-error" id="loginError">
+          <svg class="icon"><use href="#icon-help"></use></svg>
+          <span id="loginErrorText"></span>
+        </div>
+
+        <form id="loginForm" novalidate>
+          <div class="form-group">
+            <label for="loginEmail">Email address</label>
+            <div class="input-wrap">
+              <span class="field-icon"><svg class="icon"><use href="#icon-mail"></use></svg></span>
+              <input type="email" id="loginEmail" required placeholder="you@example.com">
+            </div>
+            <span class="error-msg"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <div class="input-wrap">
+              <span class="field-icon"><svg class="icon"><use href="#icon-lock"></use></svg></span>
+              <input type="password" id="loginPassword" class="has-toggle" required placeholder="Your password">
+              <button type="button" class="toggle-visibility" data-target="loginPassword" aria-label="Show password">
+                <svg class="icon"><use href="#icon-eye"></use></svg>
+              </button>
+            </div>
+            <span class="error-msg"></span>
+          </div>
+
+          <div class="row-between">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="rememberMe" checked>
+              Remember me
+            </label>
+            <button type="button" class="link-action" id="forgotLink">Forgot password?</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+            Log in <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+          </button>
+        </form>
+
+        <p class="alt-action">New to Quantum Digital? <a href="apply.html">Start your application</a></p>
+      </div>
+
+      <!-- RESET PASSWORD PANEL -->
+      <div class="panel" id="resetPanel">
+        <div class="step-heading">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-mail"></use></svg></span>
+          <h2>Reset your password</h2>
+        </div>
+        <p class="step-sub">Enter your email and we'll send you a link to reset your password</p>
+
+        <div class="form-banner-error" id="resetError">
+          <svg class="icon"><use href="#icon-help"></use></svg>
+          <span id="resetErrorText"></span>
+        </div>
+
+        <div class="form-banner-success" id="resetSuccess">
+          <svg class="icon"><use href="#icon-check-circle"></use></svg>
+          <span id="resetSuccessText"></span>
+        </div>
+
+        <form id="resetForm" novalidate>
+          <div class="form-group">
+            <label for="resetEmail">Email address</label>
+            <div class="input-wrap">
+              <span class="field-icon"><svg class="icon"><use href="#icon-mail"></use></svg></span>
+              <input type="email" id="resetEmail" required placeholder="you@example.com">
+            </div>
+            <span class="error-msg"></span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="resetBtn">
+            Send reset link
+          </button>
+        </form>
+
+        <button type="button" class="btn btn-ghost btn-block" id="backToLoginBtn">
+          <svg class="icon"><use href="#icon-arrow-left"></use></svg> Back to login
+        </button>
+      </div>
+    </div>
+
+    <!-- ===================== SUCCESS VIEW ===================== -->
+    <div class="success-wrap" id="successWrap">
+      <div class="card success-box">
+        <div class="success-icon"><svg class="icon"><use href="#icon-check-circle"></use></svg></div>
+        <h2>Login successful!</h2>
+        <p id="welcomeMsg">Welcome back!</p>
+        <div class="loading-bar"><div class="loading-bar-fill" id="loadingFill"></div></div>
+        <p class="loading-text">Taking you to your dashboard…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== FIREBASE SDK ===================== -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+  <script>
+    /* =========================================================
+       FIREBASE SETUP — use the SAME config you used in
+       register.html, so this page signs in to the same project
+       and reads the same users your registration page created.
+    ========================================================= */
+    const firebaseConfig = {
+  apiKey: "AIzaSyApsP3dmRBiBQ1_1Rj7HYaa-ZO9RuwbbG4",
+  authDomain: "quantum-bank-fe2d2.firebaseapp.com",
+  projectId: "quantum-bank-fe2d2",
+  storageBucket: "quantum-bank-fe2d2.firebasestorage.app",
+  messagingSenderId: "29002383788",
+  appId: "1:29002383788:web:109cff0125fba69f107a09"
+};
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // ---------- panel switching ----------
+    const loginPanel = document.getElementById('loginPanel');
+    const resetPanel = document.getElementById('resetPanel');
+    const forgotLink = document.getElementById('forgotLink');
+    const backToLoginBtn = document.getElementById('backToLoginBtn');
+
+    function showPanel(name){
+      loginPanel.classList.toggle('active', name === 'login');
+      resetPanel.classList.toggle('active', name === 'reset');
+      clearError(loginErrorBanner, loginErrorText);
+      clearError(resetErrorBanner, resetErrorText);
+      resetSuccessBanner.classList.remove('show');
+    }
+
+    forgotLink.addEventListener('click', () => {
+      const email = document.getElementById('loginEmail').value;
+      if(email) document.getElementById('resetEmail').value = email;
+      showPanel('reset');
+    });
+
+    backToLoginBtn.addEventListener('click', () => showPanel('login'));
+
+    // ---------- error / success banner helpers ----------
+    const loginErrorBanner = document.getElementById('loginError');
+    const loginErrorText = document.getElementById('loginErrorText');
+    const resetErrorBanner = document.getElementById('resetError');
+    const resetErrorText = document.getElementById('resetErrorText');
+    const resetSuccessBanner = document.getElementById('resetSuccess');
+    const resetSuccessText = document.getElementById('resetSuccessText');
+
+    function showError(banner, textEl, msg){
+      textEl.textContent = msg;
+      banner.classList.add('show');
+    }
+
+    function clearError(banner, textEl){
+      banner.classList.remove('show');
+      textEl.textContent = '';
+    }
+
+    function friendlyError(error){
+      const messages = {
+        'auth/user-not-found': 'No account found with that email. Check the address or create a new account.',
+        'auth/wrong-password': 'Incorrect password. Try again or reset your password.',
+        'auth/invalid-credential': 'Incorrect email or password.',
+        'auth/invalid-email': 'Please enter a valid email address.',
+        'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
+        'auth/network-request-failed': 'Network error. Please check your connection and try again.',
+        'auth/user-disabled': 'This account has been disabled. Contact support for help.'
+      };
+      return messages[error.code] || error.message || 'Something went wrong. Please try again.';
+    }
+
+    // ---------- password show/hide ----------
+    document.querySelectorAll('.toggle-visibility').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        const isPw = target.type === 'password';
+        target.type = isPw ? 'text' : 'password';
+        btn.innerHTML = isPw
+          ? '<svg class="icon"><use href="#icon-eye-off"></use></svg>'
+          : '<svg class="icon"><use href="#icon-eye"></use></svg>';
+      });
+    });
+
+    // ---------- field validation helper ----------
+    function validateField(field){
+      const group = field.closest('.form-group');
+      const err = group.querySelector('.error-msg');
+      if(!field.checkValidity()){
+        group.classList.add('has-error');
+        err.textContent = field.validationMessage || 'This field is required';
+        return false;
+      }
+      group.classList.remove('has-error');
+      err.textContent = '';
+      return true;
+    }
+
+    // ---------- login ----------
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError(loginErrorBanner, loginErrorText);
+
+      const emailField = document.getElementById('loginEmail');
+      const passwordField = document.getElementById('loginPassword');
+      const emailValid = validateField(emailField);
+      const passwordValid = validateField(passwordField);
+      if(!emailValid || !passwordValid) return;
+
+      const email = emailField.value;
+      const password = passwordField.value;
+      const remember = document.getElementById('rememberMe').checked;
+
+      const originalContent = loginBtn.innerHTML;
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+      try{
+        await auth.setPersistence(
+          remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION
+        );
+        const credential = await auth.signInWithEmailAndPassword(email, password);
+        const user = credential.user;
+
+        let firstName = email.split('@')[0];
+        try{
+          const snapshot = await db.ref('users/' + user.uid).once('value');
+          const profile = snapshot.val();
+          if(profile && profile.firstName){ firstName = profile.firstName; }
+          else if(user.displayName){ firstName = user.displayName.split(' ')[0]; }
+        }catch(dbErr){
+          if(user.displayName){ firstName = user.displayName.split(' ')[0]; }
+        }
+
+        document.getElementById('welcomeMsg').textContent = `Welcome back, ${firstName}!`;
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('successWrap').classList.add('active');
+
+        requestAnimationFrame(() => {
+          document.getElementById('loadingFill').style.width = '100%';
+        });
+
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1900);
+
+      }catch(error){
+        showError(loginErrorBanner, loginErrorText, friendlyError(error));
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = originalContent;
+      }
+    });
+
+    // ---------- forgot password ----------
+    const resetForm = document.getElementById('resetForm');
+    const resetBtn = document.getElementById('resetBtn');
+
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError(resetErrorBanner, resetErrorText);
+      resetSuccessBanner.classList.remove('show');
+
+      const emailField = document.getElementById('resetEmail');
+      if(!validateField(emailField)) return;
+      const email = emailField.value;
+
+      const originalContent = resetBtn.innerHTML;
+      resetBtn.disabled = true;
+      resetBtn.innerHTML = '<span class="spinner"></span> Sending...';
+
+      try{
+        await auth.sendPasswordResetEmail(email);
+        showError(resetSuccessBanner, resetSuccessText, `We've sent a password reset link to ${email}. Check your inbox.`);
+        resetSuccessBanner.classList.add('show');
+        resetBtn.innerHTML = 'Send reset link';
+        resetBtn.disabled = false;
+      }catch(error){
+        showError(resetErrorBanner, resetErrorText, friendlyError(error));
+        resetBtn.disabled = false;
+        resetBtn.innerHTML = originalContent;
+      }
+    });
+  </script>
+
+</body>
+</html>
